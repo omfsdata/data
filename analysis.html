@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SDN Match Analysis · OMFS Residency</title>
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<nav class="site-nav">
+  <a class="brand" href="index.html">OMFS Residency<span>.</span></a>
+  <div class="nav-links">
+    <a href="index.html">Map</a>
+    <a href="analysis.html" class="active">SDN Match Analysis</a>
+    <a href="about.html">About</a>
+  </div>
+</nav>
+
+<article class="page">
+  <p class="eyebrow">Exploratory data analysis</p>
+  <h1 class="title">What seven years of SDN match posts say about the OMFS match</h1>
+  <p class="byline">An exploratory look at self-reported Oral &amp; Maxillofacial Surgery residency match results, 2020–2026 · 111 matched applicants</p>
+
+  <p class="lede">
+    Every January, oral surgery applicants post their stats to the Student Doctor Network (SDN)
+    &ldquo;Official OMS Match Results&rdquo; threads once results are released. Those threads are the closest
+    thing the specialty has to a public dataset. This page pulls together seven cycles of them and asks a
+    simple question: among people who matched, how do objective metrics&mdash;CBSE score, class rank, research,
+    externships&mdash;relate to the <em>kind</em> of program they landed?
+  </p>
+
+  <div class="callout warn">
+    <h3>Read this first: what this data can and can&rsquo;t tell you</h3>
+    <p style="margin-bottom:0">
+      Every number below comes from people who <b>chose to post after matching</b>. There is no
+      comparison group of applicants who didn&rsquo;t match, and the posts skew toward &ldquo;if I could do it,
+      so can you&rdquo; success stories. So nothing here describes <em>whether</em> someone matches&mdash;only how
+      metrics relate to <em>where</em> matchers ended up. Treat all of it as hypothesis-generating, not
+      predictive. Self-reported, self-selected, and small.
+    </p>
+  </div>
+
+  <h2>How the data was collected</h2>
+  <p>
+    The seven &ldquo;Official OMS Match Results&rdquo; threads (2020 through 2026) were read in full&mdash;every
+    page&mdash;and each self-reported result post was coded into a structured row: program length (4-year
+    single-degree vs 6-year dual-degree/MD), CBSE score, class-rank percentile, number of externships,
+    research intensity, and the application funnel (programs applied to → interview invites → interviews
+    attended → programs ranked). Purely conversational posts were skipped.
+  </p>
+  <p>
+    Program length was recorded only when a poster stated it explicitly (&ldquo;4-year&rdquo;, &ldquo;6yr&rdquo;,
+    &ldquo;dual-degree&rdquo;) or where it was unambiguous; otherwise it was left blank. Research was coded on a
+    four-level ordinal scale (none / light / moderate / heavy) from the described publications, posters, and
+    projects. The final dataset is <b>111 matched applicants</b> plus one applicant who explicitly reported
+    <em>not</em> matching.
+  </p>
+
+  <div class="callout">
+    <h3>The CBSE scoring wrinkle</h3>
+    <p>
+      The CBSE has been reported on several scales over the years: an older 2-digit scaled score, a 3-digit
+      USMLE-aligned score, and the current <b>Equated Percent Correct (EPC)</b>. To make seven years
+      comparable, every score was converted to <b>EPC</b> using the official NBME equivalency tables&mdash;the
+      old-2-digit → EPC table and the 3-digit → EPC table.
+    </p>
+    <p style="margin-bottom:0">
+      One trap worth naming: when a 2021&ndash;2023 poster wrote something like &ldquo;<code>218 (77)</code>,&rdquo;
+      the number in parentheses is the <em>old 2-digit scaled</em> score, not EPC. The 3-digit value was used
+      and converted (218 → EPC 73). The conversion was validated against posters who volunteered multiple
+      formats for the same performance&mdash;e.g. a &ldquo;72 EPC&rdquo; that the poster also called &ldquo;217,&rdquo;
+      which the table maps back to 72 exactly.
+    </p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="num">111</div><div class="lab">matched applicants coded</div></div>
+    <div class="stat"><div class="num">7</div><div class="lab">match cycles (2020–2026)</div></div>
+    <div class="stat"><div class="num">&rho; = 0.50</div><div class="lab">CBSE vs interview conversion</div></div>
+    <div class="stat"><div class="num">p = 0.006</div><div class="lab">CBSE gap, 4-yr vs 6-yr</div></div>
+  </div>
+
+  <h2>1. CBSE and program length</h2>
+  <p>
+    The recurring belief in the threads is that 6-year (dual-degree/MD) programs demand a higher CBSE than
+    4-year programs, because the affiliated medical school screens on it. Pooled across all seven cycles, the
+    data supports this&mdash;modestly. Six-year matchers have a higher median CBSE (<b>75</b> EPC) than
+    4-year matchers (<b>71</b> EPC), and the difference is statistically reliable (Mann&ndash;Whitney
+    <em>p</em> = 0.006).
+  </p>
+  <p>
+    But notice the overlap in the figure below. The 6-year distribution reaches higher at the top, yet its
+    <em>floor</em> is essentially the same as the 4-year floor. A high CBSE is disproportionately a 6-year
+    thing; a low one doesn&rsquo;t rule out either track.
+  </p>
+
+  <figure>
+    <img src="assets/f1_cbse_length.png" alt="Box-and-strip plot of CBSE (EPC) by program length. 6-year median 75, 4-year median 71.">
+    <figcaption><b>Figure 1.</b> CBSE (EPC) by program length, all matchers 2020&ndash;2026. Each dot is one
+      applicant; boxes show median and interquartile range. Six-year programs skew higher, but both tracks
+      span nearly the full range.</figcaption>
+  </figure>
+
+  <h2>2. The one robust relationship: CBSE → interview invites</h2>
+  <p>
+    If the score does one thing clearly, it&rsquo;s convert applications into interview invites. Plotting CBSE
+    against interview conversion (invites ÷ applications) gives a Spearman correlation of
+    <b>&rho; = 0.50</b> (<em>p</em> &lt; 0.001)&mdash;the strongest and most reliable relationship in the whole
+    dataset. This is the quantified version of the advice repeated in every thread: the score gets your foot in
+    the door, and everything after the interview is about fit.
+  </p>
+  <p>
+    The bubble sizes are telling, too: several low scorers still matched by applying to 40&ndash;50 programs, using
+    sheer volume to compensate for a lower per-application hit rate.
+  </p>
+
+  <figure>
+    <img src="assets/f3_cbse_conv.png" alt="Scatter of CBSE vs interview conversion, colored by program length, bubble size by number of applications. Spearman rho = 0.50.">
+    <figcaption><b>Figure 2.</b> CBSE vs interview conversion. Bubble size is the number of programs applied
+      to. Higher scores convert a larger share of applications into invites; low scorers compensate with
+      volume.</figcaption>
+  </figure>
+
+  <h2>3. Research is a separate lever</h2>
+  <p>
+    Research intensity tracks with interview conversion (<b>&rho; = 0.29</b>, <em>p</em> = 0.002): median
+    conversion climbs steadily from <b>46%</b> (no research) to <b>71%</b> (heavy research). Six-year matchers
+    also carry more research than 4-year matchers&mdash;the &ldquo;heavy&rdquo; band is visibly larger for
+    6-year programs&mdash;consistent with academic medical centers valuing it.
+  </p>
+  <p>
+    The most interesting part: research and CBSE are essentially <b>uncorrelated</b> (&rho; = 0.12, not
+    significant). They aren&rsquo;t the same strong applicants doing both&mdash;research looks like a genuinely
+    independent path to invites rather than a proxy for test-taking ability.
+  </p>
+
+  <figure>
+    <img src="assets/f4_research.png" alt="Left: stacked bar of research intensity by program length. Right: interview conversion by research level, rising from none to heavy.">
+    <figcaption><b>Figure 3.</b> <b>Left:</b> research intensity by program length&mdash;6-year matchers
+      report more heavy research. <b>Right:</b> interview conversion rises monotonically with research
+      intensity.</figcaption>
+  </figure>
+
+  <h2>4. Externships</h2>
+  <p>
+    More externships track with better conversion (<b>&rho; = 0.38</b>, <em>p</em> &lt; 0.001), though the
+    median count is identical for both tracks (4 each). Read the causation carefully: externing where you
+    apply is itself a targeting strategy, so some of this is &ldquo;people extern at the places most likely to
+    interview them.&rdquo; It remains the single most-emphasized <em>qualitative</em> theme across all seven
+    years&mdash;nearly every write-up credits externship relationships and letter-writers over raw numbers.
+  </p>
+
+  <figure>
+    <img src="assets/f5_ext.png" alt="Left: externships by program length, both median 4. Right: externships vs interview conversion, positive trend.">
+    <figcaption><b>Figure 4.</b> <b>Left:</b> externship counts don&rsquo;t separate the two tracks.
+      <b>Right:</b> more externships track with higher conversion.</figcaption>
+  </figure>
+
+  <h2>5. A myth-check: are scores really rising every year?</h2>
+  <p>
+    The perennial forum refrain is that matched CBSE scores climb every cycle. Once every score is placed on
+    the same EPC scale, that march mostly disappears&mdash;matched-applicant medians bounce around the low-70s
+    (6-year) and high-60s/low-70s (4-year) without a strong upward trend. The perceived rise appears to be
+    largely an artifact of the old→new scale change inflating the raw numbers people saw, not a real jump in
+    matched performance.
+  </p>
+
+  <figure>
+    <img src="assets/f2_cbse_trend.png" alt="Median CBSE by year and program length, 2020-2026, roughly flat.">
+    <figcaption><b>Figure 5.</b> Matched-applicant CBSE by cycle. Six-year sits at or above 4-year every
+      year, but neither marches steadily upward once scores are on a common scale. (Early years have small
+      per-track samples&mdash;interpret the endpoints loosely.)</figcaption>
+  </figure>
+
+  <h2>6. Class rank doesn&rsquo;t separate the tracks</h2>
+  <p>
+    Class-rank percentile has essentially no relationship with program length (&rho; = 0.01). Matchers span
+    from top-of-class to near-bottom in both 4- and 6-year programs. The low-rank cases almost always pair a
+    mediocre rank with <em>something else</em> carrying the application&mdash;a strong CBSE, heavy research, an
+    extra degree, or externship-driven relationships.
+  </p>
+
+  <figure>
+    <img src="assets/f6_rank.png" alt="Scatter of class-rank percentile vs CBSE, colored by program length; matchers span the full rank range.">
+    <figcaption><b>Figure 6.</b> Rank vs CBSE among matchers. Both tracks span the full rank range; rank
+      alone doesn&rsquo;t distinguish where people matched.</figcaption>
+  </figure>
+
+  <h2>7. The application funnel</h2>
+  <p>
+    The attrition is overwhelmingly at the first step&mdash;applications to invites. Once applicants reach the
+    interview, they rank almost everything they attend. In other words, for these matchers the binding
+    constraint was <em>getting invited</em>, not converting interviews into a rank slot.
+  </p>
+
+  <figure>
+    <img src="assets/f7_funnel.png" alt="Line chart of median applied, invites, interviews, ranked counts by cycle.">
+    <figcaption><b>Figure 7.</b> Median application funnel by cycle. The steep drop is applications →
+      invites; the interview → ranked step barely narrows.</figcaption>
+  </figure>
+
+  <h2>Qualitative patterns worth keeping</h2>
+  <ul>
+    <li><b>&ldquo;Score for the interview, personality for the spot.&rdquo;</b> The most repeated sentiment across
+      all seven years: the CBSE screens you in, then fit and social skills decide.</li>
+    <li><b>Letters and externships are the hidden currency.</b> Multiple matchers were told their letters were
+      decisive; many matched where they externed.</li>
+    <li><b>The low end matches too&mdash;usually the long way.</b> A recurring cast of applicants matched with
+      CBSEs in the low 60s or near-bottom class ranks, almost always into 4-year programs and almost always
+      after one or two non-categorical years.</li>
+    <li><b>Rank where you want to go.</b> The standard warning against ranking strategically &ldquo;to match&rdquo;
+      rather than by genuine preference shows up every cycle.</li>
+  </ul>
+
+  <h2>Limitations</h2>
+  <p>
+    Beyond the survivorship and self-selection issues flagged at the top: program length is imputed for a
+    handful of entries and blank where a poster didn&rsquo;t state it; research and extracurricular coding
+    involve judgment; and the 2020&ndash;2021 scores are the messiest, since some applicants took the CBSE
+    before the scale change and self-converted. There is essentially no matched-vs-unmatched comparison here&mdash;
+    the &ldquo;Official Results&rdquo; threads contain almost only matchers. The parallel
+    &ldquo;PASS / Interviews / Non-Match&rdquo; threads would be the right source to actually model
+    <em>whether</em> someone matches.
+  </p>
+
+  <p style="margin-top:26px">
+    <a href="assets/omfs_all.csv" download>↓ Download the coded dataset (CSV)</a>
+    &nbsp;·&nbsp; every row includes a note recording the raw score and its conversion path.
+  </p>
+</article>
+
+<div class="footer">
+  Data compiled from public SDN &ldquo;Official OMS Match Results&rdquo; threads (2020&ndash;2026). Analysis is
+  exploratory and self-reported; not affiliated with SDN, AAOMS, or any residency program.
+</div>
+</body>
+</html>
