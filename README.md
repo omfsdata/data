@@ -1,51 +1,90 @@
 # OMFS Residency site
 
-A minimal three-page static site:
+A minimal **Jekyll** site (which GitHub Pages builds for you automatically — no build step on your end).
+All the shared HTML lives in one layout, and the content pages are Markdown.
 
-| Page | File | What it is |
-|------|------|-----------|
-| Map (home) | `index.html` | Interactive D3 map + table of accredited OMFS programs |
-| SDN Match Analysis | `analysis.html` | Blog-style write-up of the 2020–2026 match-results analysis |
-| About | `about.html` | Placeholder text for you to edit |
+## How it fits together
 
-Shared styling lives in `site.css`. All figures and the dataset live in `assets/`.
-There is no build step — it's plain HTML/CSS/JS.
-
-## Files
 ```
-index.html         # map (loads site.css + inline D3)
-analysis.html      # analysis post
-about.html         # about (edit the [Filler] text)
-site.css           # shared nav + page styles
+_config.yml              # site settings (title, footer, domain)
+_layouts/
+  default.html           # THE WRAPPER — <head>, nav bar, footer live here once
+_includes/
+  figure.html            # reusable figure+caption snippet
+index.html               # the map (front matter + the map markup/JS)
+analysis.md              # ← edit this in Markdown
+about.md                 # ← edit this in Markdown
 assets/
-  f1_cbse_length.png … f7_funnel.png   # figures embedded in analysis.html
-  omfs_all.csv                          # coded dataset (linked for download)
+  css/site.css           # shared styles (nav, article, palette)
+  css/map.css            # map-only styles
+  img/f1…f7.png          # figures used by analysis.md
+  omfs_all.csv           # dataset (linked for download)
+Gemfile, .gitignore      # only for optional local preview
 ```
+
+**The wrapper.** Every page is rendered inside `_layouts/default.html`, which holds the
+`<head>`, the navigation bar, and the footer. A page never repeats that boilerplate — it just
+starts with a little front-matter header saying "use the default layout":
+
+```yaml
+---
+layout: default
+title: About
+nav: about        # highlights the right nav link (map | analysis | about)
+container: page   # gives it the narrow reading column (omit for full-width like the map)
+---
+```
+
+Change the nav bar, fonts, or footer **once** in `_layouts/default.html` / `assets/css/site.css`
+and it updates everywhere.
+
+## Editing content (the Markdown part)
+
+`analysis.md` and `about.md` are plain Markdown — headings with `#`, **bold**, lists, links.
+You can edit them straight in GitHub's web editor.
+
+To drop in a figure, use the one-line include (no HTML needed):
+
+```liquid
+{% include figure.html num="2" src="f3_cbse_conv.png"
+   caption="What this figure shows." %}
+```
+
+Add `wide="true"` for a wide two-panel figure. New image? Put the PNG in `assets/img/`
+and reference it by filename.
+
+A few spots (the coloured "callout" boxes and the stat tiles) are small raw-HTML blocks inside
+the Markdown — they're labelled and you can edit the text inside them freely.
 
 ## Deploy on GitHub Pages
-1. Create a repo and put **all of these files at the repo root** (keep the `assets/` folder).
-2. Commit and push.
-3. Repo → **Settings → Pages** → *Build and deployment* → Source: **Deploy from a branch**,
-   Branch: **main** / **/ (root)** → Save.
-4. Your site appears at `https://<username>.github.io/<repo>/` within a minute or two.
-   Because the homepage is `index.html`, the map loads by default.
+
+1. Put everything in a repo (root level). Commit and push.
+2. Repo → **Settings → Pages** → Source: **Deploy from a branch** → Branch **main** / **/(root)**.
+3. GitHub detects Jekyll and builds it automatically. Your site is live in a minute or two.
+
+> Do **not** add a `.nojekyll` file — that would turn the Jekyll build off.
 
 ## Custom domain
-You already own a domain, so:
-1. Create a file named **`CNAME`** (no extension) at the repo root containing just your domain, e.g.
+
+1. Add a file named **`CNAME`** (no extension) at the repo root containing just your domain:
    ```
    www.yourdomain.com
    ```
-2. At your DNS registrar, point the domain at GitHub Pages:
-   - For `www`: a **CNAME** record → `<username>.github.io`
-   - For the apex/root (`yourdomain.com`): four **A** records →
-     `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
-3. Settings → Pages → **Custom domain** → enter your domain → Save, and tick
-   **Enforce HTTPS** once the certificate is issued.
+2. DNS at your registrar:
+   - `www` → **CNAME** record → `<username>.github.io`
+   - apex `yourdomain.com` → four **A** records → `185.199.108.153`, `185.199.109.153`,
+     `185.199.110.153`, `185.199.111.153`
+3. Settings → Pages → set the custom domain and enable **Enforce HTTPS**.
 
-All links between pages are relative, so they work the same on `github.io` or your custom domain.
+Keep `baseurl: ""` in `_config.yml` for a custom domain. (Only set `baseurl: "/repo-name"`
+if you serve from `username.github.io/repo-name/` instead.)
 
-## Editing later
-- **About text:** open `about.html`, replace the `[Filler]` paragraphs.
-- **Refresh a figure:** drop a new PNG into `assets/` with the same filename.
-- **Colors/nav:** everything visual is in `site.css` (`:root` at the top holds the palette).
+## Optional: preview locally
+
+Not required, but if you want to see changes before pushing:
+
+```bash
+bundle install
+bundle exec jekyll serve
+# open http://localhost:4000
+```

@@ -1,0 +1,10 @@
+{%- comment -%}
+Usage in Markdown:
+  {% include figure.html num="1" src="f1_cbse_length.png" caption="Your caption here." %}
+Optional: alt="custom alt text"  wide="true"
+{%- endcomment -%}
+<figure{% if include.wide %} class="wide"{% endif %}>
+  <img src="{{ '/assets/img/' | append: include.src | relative_url }}"
+       alt="{{ include.alt | default: include.caption }}">
+  <figcaption><b>Figure {{ include.num }}.</b> {{ include.caption }}</figcaption>
+</figure>

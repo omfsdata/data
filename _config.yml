@@ -1,0 +1,18 @@
+# --- Site settings (edit these) ---
+title: OMFS Residency
+description: Interactive OMFS program map and an analysis of SDN match results.
+footer_text: >
+  Not affiliated with SDN, AAOMS, or any residency program. Program information may be
+  out of date — always verify with the program directly.
+
+# If you use a CUSTOM DOMAIN, leave baseurl empty (""):
+baseurl: ""
+# If instead you serve from https://<user>.github.io/<repo>/, set:
+# baseurl: "/your-repo-name"
+
+# --- Build settings (leave as-is) ---
+markdown: kramdown
+kramdown:
+  input: GFM            # GitHub-flavored markdown
+exclude:
+  - README.md

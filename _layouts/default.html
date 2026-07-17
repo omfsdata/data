@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if page.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
+  <link rel="stylesheet" href="{{ '/assets/css/site.css' | relative_url }}">
+  {% if page.extra_css %}<link rel="stylesheet" href="{{ page.extra_css | relative_url }}">{% endif %}
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="brand" href="{{ '/' | relative_url }}">OMFS Residency<span>.</span></a>
+    <div class="nav-links">
+      <a href="{{ '/' | relative_url }}"        class="{% if page.nav == 'map' %}active{% endif %}">Map</a>
+      <a href="{{ '/analysis/' | relative_url }}" class="{% if page.nav == 'analysis' %}active{% endif %}">SDN Match Analysis</a>
+      <a href="{{ '/about/' | relative_url }}"    class="{% if page.nav == 'about' %}active{% endif %}">About</a>
+    </div>
+  </nav>
+
+  <main class="{{ page.container }}">
+    {{ content }}
+  </main>
+
+  <div class="footer">{{ site.footer_text }}</div>
+</body>
+</html>
