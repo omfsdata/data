@@ -11,7 +11,7 @@ container: page
 # About this site
 {: .title}
 
-Made with ❤️ and Claude 🤖 by an ordinary OMFS spouse 😝
+Made with ❤️ and Claude 🤖 by an OMFS spouse 😝
 {: .byline}
 
 This site hosts a few resources for people navigating the Oral & Maxillofacial Surgery residency application process, namely:
