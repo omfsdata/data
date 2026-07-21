@@ -36,7 +36,7 @@ Found an error in the program map, want to see a specific analysis, or have an i
   </select>
 
   <label for="message">Your feedback</label>
-  <textarea id="message" name="message" rows="7" required
+  <textarea id="message" name="message" rows="20" required
             placeholder="Let me know what you'd like to see on OMFS Data!"></textarea>
 
   <label for="contact">Contact (optional)</label>
