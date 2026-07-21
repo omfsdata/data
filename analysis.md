@@ -101,4 +101,5 @@ The attrition is overwhelmingly at the first step — applications to invites. O
 
 Beyond the survivorship and self-selection issues flagged at the top: program length is imputed for a handful of entries and blank where a poster didn't state it; research and extracurricular coding involve judgment; and the 2020–2021 scores are the messiest, since some applicants took the CBSE before the scale change and self-converted. There is essentially no matched-vs-unmatched comparison here — the "Official Results" threads contain almost only matchers. The parallel "PASS / Interviews / Non-Match" threads would be the right source to actually model *whether* someone matches.
 
+## Dataset availability
 [↓ Download the coded dataset (CSV)]({{ '/assets/omfs_all.csv' | relative_url }}) · every row includes a note recording the raw score and its conversion path.
