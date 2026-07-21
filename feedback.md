@@ -8,10 +8,10 @@ container: page
 
 <p class="eyebrow">Feedback</p>
 
-# Suggest an improvement
+# Make OMFS Data better
 {: .title}
 
-Anonymous — no login, no email required.
+How can I make OMFS Data more useful? Give your anonymous feedback!
 {: .byline}
 
 Found an error in the program map, want to see a specific analysis, or have an idea of how to expand this site? Tell me here! Nothing on this form is required except the message itself.
