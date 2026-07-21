@@ -76,11 +76,15 @@ The perennial forum refrain is that matched CBSE scores climb every cycle. Once 
 
 {% include figure.html num="5" src="f2_cbse_trend.png" caption="Matched-applicant CBSE by cycle. Six-year sits at or above 4-year every year, but neither marches steadily upward once scores are on a common scale. (Early years have small per-track samples — interpret the endpoints loosely.)" %}
 
-## 6. Class rank doesn't separate the tracks
+## 6. Class rank doesn't separate the tracks but does predict CBSE
 
-Class-rank percentile has essentially no relationship with program length (ρ = 0.01). Matchers span from top-of-class to near-bottom in both 4- and 6-year programs. The low-rank cases almost always pair a mediocre rank with *something else* carrying the application — a strong CBSE, heavy research, an extra degree, or externship-driven relationships.
+Class rank has essentially no relationship with matched program length (p = 0.96). Median class-rank percentile is 10th for both 4-year (n = 36) and 6-year (n = 41) matchers. The low class rank cases almost always pair a mediocre rank with *something else* carrying the application — a strong CBSE, heavy research, an extra degree, or externship-driven relationships.
 
-{% include figure.html num="6" src="f6_rank.png" caption="Rank vs CBSE among matchers. Both tracks span the full rank range; rank alone doesn't distinguish where people matched." %}
+Rank and CBSE do move together, but loosely. Across the 79 matchers reporting both, Spearman ρ = −0.25 (p = 0.024). The sign is negative because lower percentile means better class rank, so read it as: better-ranked applicants tend to post higher CBSE scores. However, the effect is small: class rank accounts for roughly 6% of the variance in CBSE scores. 
+
+The two measures are capturing genuinely different things: rank is school-relative and grading-scheme-dependent (several matchers came from pass/fail programs and reported no rank at all), while the CBSE is an absolute, nationally-scaled exam. The practical conclusion is unchanged from what the SDN threads say every year: rank is the least discriminating of the objective metrics. It doesn't sort applicants into program types, and it predicts the CBSE only loosely.
+
+{% include figure.html num="6" src="f6_rank.png" caption="Left: class rank vs CBSE among matchers (ρ = −0.25, p = 0.024, n = 79) — better-ranked applicants score somewhat higher, but the relationship is weak and the spread is wide. Right: class rank by program length — medians are identical at the 10th percentile (p = 0.96). Note the concentration near the top of the class in both tracks, which limits what the correlation can tell us about lower-ranked applicants." %}
 
 ## 7. The application funnel
 
