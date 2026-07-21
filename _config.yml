@@ -1,8 +1,8 @@
 # --- Site settings (edit these) ---
 title: OMFS Data
-description: Interactive OMFS program map and an analysis of SDN match results.
+description: Interactive OMFS program map and an analysis of SDN match results
 footer_text: >
-  Not affiliated with SDN, AAOMS, or any residency program. Program information may be
+  Made with love, by an OMFS spouse. Not affiliated with SDN, AAOMS, or any residency program. Program information may be
   out of date — always verify with the program directly.
 
 # If you use a CUSTOM DOMAIN, leave baseurl empty (""):
