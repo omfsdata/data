@@ -1,0 +1,31 @@
+{%- comment -%}
+  Analytics snippet. Enabled by setting ONE of these in _config.yml:
+
+    analytics:
+      goatcounter: yourcode        # -> https://yourcode.goatcounter.com
+      cloudflare:  ""              # the token from Cloudflare Web Analytics
+      ga4:         ""              # e.g. G-XXXXXXXXXX
+
+  Leave a value blank/absent to disable it. If none are set, no script is
+  emitted at all — so local previews and forks stay clean.
+{%- endcomment -%}
+
+{%- if site.analytics.goatcounter and site.analytics.goatcounter != "" -%}
+<script data-goatcounter="https://{{ site.analytics.goatcounter }}.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+{%- endif -%}
+
+{%- if site.analytics.cloudflare and site.analytics.cloudflare != "" -%}
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon='{"token": "{{ site.analytics.cloudflare }}"}'></script>
+{%- endif -%}
+
+{%- if site.analytics.ga4 and site.analytics.ga4 != "" -%}
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ site.analytics.ga4 }}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', '{{ site.analytics.ga4 }}');
+</script>
+{%- endif -%}
