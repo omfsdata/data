@@ -19,11 +19,8 @@ This site hosts a few resources for people navigating the Oral & Maxillofacial S
 2. **SDN match analysis** — an exploratory analysis of seven years (2020-2026) of self-reported match results scraped from Student Doctor Network forums (dataset is included)
 
 
-
 ## Who am I?
 
-I'm just an ordinary OMFS-applicant spouse that has heard way too much about OMFS programs in the last few years 🙂 I am a scientist by trade, so I love a good data analysis. Please leave any feedback for what other kinds of analyses you'd like to see! Please remember that I am limited to what I can scrape off SDN.
+I'm just an ordinary OMFS-applicant spouse that has heard way too much about OMFS programs in the last few years 🙂 I am a scientist by trade, so I love a good data analysis. Please leave any feedback for what other kinds of analyses you'd like to see! Please remember that I am limited to what I can scrape off SDN (though if you have suggestions for better data, please let me know!)
 
 Good luck to everyone applying! 
-
--- OMFS spouse
