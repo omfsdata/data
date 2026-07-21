@@ -16,3 +16,5 @@ kramdown:
   input: GFM            # GitHub-flavored markdown
 exclude:
   - README.md
+analytics:
+     goatcounter: "omfsdata"
