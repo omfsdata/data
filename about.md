@@ -21,6 +21,6 @@ This site hosts a few resources for people navigating the Oral & Maxillofacial S
 
 ## Who am I?
 
-I'm just an ordinary OMFS-applicant spouse that has heard way too much about OMFS programs in the last few years 🙂 I am a scientist by trade, so I love a good data analysis. Please leave any feedback for what other kinds of analyses you'd like to see! Please remember that I am limited to what I can scrape off SDN (though if you have suggestions for better data, please let me know!)
+I'm just an ordinary OMFS-applicant spouse that has heard way too much about OMFS programs in the last few years 🙂 I am a scientist by trade, so I love a good data analysis. Please leave any feedback for what other kinds of analyses you'd like to see! Please remember that I am limited to what I can scrape off SDN (though if you have suggestions for better data, [please let me know!](https://omfsdata.com/feedback/))
 
 Good luck to everyone applying! 
