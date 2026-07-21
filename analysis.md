@@ -46,9 +46,7 @@ One trap worth naming: when a 2021–2023 poster wrote something like "`218 (77)
 
 The recurring belief in the threads is that 6-year (dual-degree/MD) programs demand a higher CBSE than 4-year programs, because the affiliated medical school screens on it. Pooled across all seven cycles, the data supports this — modestly. Six-year matchers have a higher median CBSE (**75** EPC) than 4-year matchers (**71** EPC), and the difference is statistically reliable (Mann–Whitney *p* = 0.006).
 
-But notice the overlap in the figure below. The 6-year distribution reaches higher at the top, yet its *floor* is essentially the same as the 4-year floor. A high CBSE is disproportionately a 6-year thing; a low one doesn't rule out either track.
-
-{% include figure.html num="1" src="f1_cbse_length.png" caption="CBSE (EPC) by program length, all matchers 2020–2026. Each dot is one applicant; boxes show median and interquartile range. Six-year programs skew higher, but both tracks span nearly the full range." %}
+{% include figure.html num="1" src="f1_cbse_length.png" caption="CBSE (EPC) by program length, all matchers 2020–2026. Each dot is one applicant; boxes show median and interquartile range. Six-year programs skew higher." %}
 
 ## 2. The one robust relationship: CBSE → interview invites
 
