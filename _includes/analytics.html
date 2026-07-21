@@ -11,21 +11,7 @@
 {%- endcomment -%}
 
 {%- if site.analytics.goatcounter and site.analytics.goatcounter != "" -%}
-<script data-goatcounter="https://{{ site.analytics.goatcounter }}.goatcounter.com/count"
+<script data-goatcounter="https://omfsdata.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 {%- endif -%}
 
-{%- if site.analytics.cloudflare and site.analytics.cloudflare != "" -%}
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js"
-        data-cf-beacon='{"token": "{{ site.analytics.cloudflare }}"}'></script>
-{%- endif -%}
-
-{%- if site.analytics.ga4 and site.analytics.ga4 != "" -%}
-<script async src="https://www.googletagmanager.com/gtag/js?id={{ site.analytics.ga4 }}"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', '{{ site.analytics.ga4 }}');
-</script>
-{%- endif -%}
