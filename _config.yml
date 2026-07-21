@@ -10,11 +10,12 @@ baseurl: ""
 # If instead you serve from https://<user>.github.io/<repo>/, set:
 # baseurl: "/your-repo-name"
 
+analytics:
+  goatcounter: "omfsdata"
+     
 # --- Build settings (leave as-is) ---
 markdown: kramdown
 kramdown:
   input: GFM            # GitHub-flavored markdown
 exclude:
   - README.md
-analytics:
-     goatcounter: "omfsdata"
