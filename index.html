@@ -1,0 +1,606 @@
+---
+layout: default
+title: Map
+nav: map
+extra_css: /assets/css/map.css
+---
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+{% raw %}
+<div id="wrap">
+  <h1>Accredited OMFS Residency Programs</h1>
+  <p class="subtitle">Hover any marker for degree type &amp; annual openings · click a legend chip to filter</p>
+
+  <div id="controls">
+    <div class="legend-item" data-key="Single"><span class="legend-dot" style="background:var(--single)"></span>Single Degree</div>
+    <div class="legend-item" data-key="Dual"><span class="legend-dot" style="background:var(--dual)"></span>Dual Degree</div>
+    <div class="legend-item" data-key="Both"><span class="legend-dot" style="background:var(--both)"></span>Both Tracks Offered</div>
+    <div class="legend-item" data-key="Federal"><span class="legend-dot" style="background:var(--federal)"></span>Federal Service</div>
+    <input id="search" type="text" placeholder="Search school or city…">
+  </div>
+
+  <div id="mapbox">
+    <svg id="svgmap" viewBox="0 0 960 600"></svg>
+    <div id="tooltip"></div>
+    <div id="zoom-controls">
+      <button id="zoom-in" title="Zoom in">+</button>
+      <button id="zoom-out" title="Zoom out">−</button>
+      <button id="zoom-reset" title="Reset zoom">⤾</button>
+    </div>
+    <div id="zoom-hint">Scroll or pinch to zoom · drag to pan</div>
+  </div>
+  <div id="count"></div>
+
+  <div id="table-section">
+    <h2>All programs</h2>
+    <div id="table-tools">
+      <input id="table-search" type="text" placeholder="Filter table by school, city, state, director…">
+      <span id="table-count"></span>
+      <span id="table-spacer"></span>
+      <span id="selected-count">0 selected</span>
+      <button id="export-btn" type="button">⬇ Export to CSV</button>
+    </div>
+    <div class="table-scroll">
+      <table class="programs">
+        <thead>
+          <tr>
+            <th class="check-col"><input type="checkbox" id="select-all" title="Select all (filtered)"></th>
+            <th data-sort="name">Program <span class="arrow"></span></th>
+            <th data-sort="cityName">City <span class="arrow"></span></th>
+            <th data-sort="state">State <span class="arrow"></span></th>
+            <th data-sort="tracks">Track <span class="arrow"></span></th>
+            <th data-sort="openings">Annual openings <span class="arrow"></span></th>
+            <th data-sort="interview">Interview dates <span class="arrow"></span></th>
+            <th data-sort="director">Program director <span class="arrow"></span></th>
+            <th>Website</th>
+            <th data-sort="note">Notes <span class="arrow"></span></th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+    <p id="iv-disclaimer">Interview dates shown are from the <b>2026 application cycle</b> (last year), compiled from a publicly shared applicant spreadsheet — 2027-cycle dates are typically not released until interview invitations go out in the fall. Verify all dates directly with each program.</p>
+  </div>
+
+  <footer>
+    <ul>
+      <li>Source: AAOMS "Accredited Advanced Training Programs in Oral and Maxillofacial Surgery" directory (federal + state programs).</li>
+      <li>Every non-military program's own website was checked against the directory's "Program Type" field. This surfaced ~20 programs that actually run parallel 4-year (certificate-only) and 6-year (MD-integrated) tracks side by side even though the directory lists them under a single "Dual Degree" label — these are shown here as <b>Both</b> (e.g. Maryland, Emory, UF Gainesville, NYU, UConn, UMKC, Rutgers, Boston University, USC, Loma Linda, UAB, UIC, LSU New Orleans &amp; Shreveport, Geisinger, Rochester Eastman, Northwell/LIJ, Vanderbilt, UT Houston, UT Knoxville, and Pittsburgh).</li>
+      <li>One program — Cook County Health — was listed as "Single Degree" in the directory but actually runs a 4-year/6-year dual-track split.</li>
+      <li>A few programs (Texas A&amp;M, Case Western, UT San Antonio, UT Memphis) run a secondary track that's either restricted (military- or international-applicants-only) or offered only occasionally; these keep their primary directory label with a note.</li>
+      <li>Nova Southeastern is mid-transition from a 4-year to a 6-year program.</li>
+      <li>Montefiore was confirmed as Single Degree (the directory left this field blank). All other programs matched their directory listing on direct verification.</li>
+      <li>Locations are approximate (city/campus level). Puerto Rico's program is shown in the inset box since it falls outside the continental projection.</li>
+    </ul>
+  </footer>
+</div>
+
+<script>
+const programs = [
+{name:"60th Medical Group/Travis AFB", city:"Travis AFB, CA", type:"Federal", degree:"Single Degree", openings:3, lat:38.2679, lon:-121.9269, director:"Dr. Darin T. Johnston", url:"https://www.airforcemedicine.af.mil/Organizations/Graduate-Medical-Education/Residency-Programs/Oral-and-Maxillofacial-Surgery-Residency-Program/"},
+{name:"Dwight David Eisenhower Army Medical Center/Ft Gordon", city:"Fort Gordon, GA", type:"Federal", degree:"Single Degree", openings:1, lat:33.42, lon:-82.14, director:"Dr. Frank DeLatour", url:"http://www.ddeamc.amedd.army.mil"},
+{name:"Walter Reed National Military Medical Ctr", city:"Bethesda, MD", type:"Federal", degree:"Single Degree", openings:5, lat:38.9847, lon:-77.0947, director:"Dr. John Reed Combs, II", url:"https://www.usuhs.edu/gme"},
+{name:"Naval Medical Center San Diego", city:"San Diego, CA", type:"Federal", degree:"Single Degree", openings:3, lat:32.7649, lon:-117.1546, director:"Dr. Eric L Bischoff", url:"https://sandiego.tricare.mil"},
+{name:"Navy Medicine Readiness & Training Command Portsmouth", city:"Portsmouth, VA", type:"Federal", degree:"Single Degree", openings:2, lat:36.8354, lon:-76.2983, director:"Dr. Benjamin P Archer", url:"https://portsmouthnavalmedical.tricare.mil"},
+{name:"San Antonio Military OMS Residency (Lackland AFB)", city:"San Antonio, TX", type:"Federal", degree:"Single Degree", openings:5, lat:29.386, lon:-98.6206, director:"Dr. Brian David Rethman", url:"https://sanantonio.tricare.mil"},
+{name:"US Army Dental Activity/Ft. Bragg", city:"Fort Bragg, NC", type:"Federal", degree:"Single Degree", openings:2, lat:35.1391, lon:-79.006, director:"Dr. Andrew C Jenzer", url:"https://womack.tricare.mil/Academics/Graduate-Dental-Education-GDE/Oral-and-Maxillofacial-Surgery-Program"},
+{name:"US Army Dental Activity/Tripler Army Medical Center", city:"Honolulu, HI", type:"Federal", degree:"Single Degree", openings:1, lat:21.3721, lon:-157.8757, director:"Dr. Andrew A Gutierrez", url:"https://tripler.tricare.mil/Health-Services/Dental"},
+{name:"US Army Dental Activity/Madigan Army Medical Center", city:"Joint Base Lewis-McChord, WA", type:"Federal", degree:"Single Degree", openings:2, lat:47.1379, lon:-122.5845, director:"Dr. Kevin D Smith", url:"http://www.mamc.amedd.army.mil/mamc/mamcexthome.htm"},
+{name:"William Beaumont Army Medical Center", city:"Fort Bliss, TX", type:"Federal", degree:"Single Degree", openings:1, lat:31.8018, lon:-106.4194, director:"Dr. John M Kim", url:"https://elpaso.tricare.mil"},
+{name:"University of Alabama School of Dentistry at UAB", city:"Birmingham, AL", type:"State", degree:"Both", openings:4, lat:33.5024, lon:-86.8033, director:"Dr. Kathlyn K Powell", note:"UAB's own site describes two parallel tracks: a 6-year MD dual-degree residency and an alternative 7-year DMD/Certificate track \u2014 verified via uab.edu.", url:"https://www.uab.edu/dentistry/home/academics/postdoctoral/omfs/oral-and-maxillofacial-surgery-residency-program", iv:{single:"10/20, 10/27"}},
+{name:"University of Arizona College of Medicine-Phoenix", city:"Phoenix, AZ", type:"State", degree:"Single Degree", openings:2, lat:33.4573, lon:-112.0741, director:"Dr. Karel A deLeeuw", url:"https://phoenixmed.arizona.edu", iv:{single:"11/3, 11/10, 11/17"}},
+{name:"Alameda Health System/Highland General Hospital", city:"Oakland, CA", type:"State", degree:"Single Degree", openings:3, lat:37.8114, lon:-122.2493, director:"Dr. Akshay Govind", url:"https://highlandomfs.com"},
+{name:"Harbor-UCLA Medical Center", city:"Torrance, CA", type:"State", degree:"Single Degree", openings:2, lat:33.8358, lon:-118.3406, director:"Dr. Felix Kyle Yip", url:"http://www.harbor-ucla.org/surgery/education/omfs/", iv:{single:"12/9, 12/10"}},
+{name:"Herman Ostrow School of Dentistry of USC", city:"Los Angeles, CA", type:"State", degree:"Both", openings:3, lat:34.0224, lon:-118.2851, director:"Dr. Nam S Cho", note:"USC offers both a 48-month certificate-only program and a 72-month MD/certificate program with Keck School of Medicine \u2014 verified via licensure.usc.edu.", url:"https://dentistry.usc.edu", iv:{six:"11/20, 11/21"}},
+{name:"Loma Linda University School of Dentistry", city:"Loma Linda, CA", type:"State", degree:"Both", openings:3, lat:34.0483, lon:-117.2612, director:"Dr. Meagan J Miller", note:"Loma Linda runs a 6-year OMFS/MD program alongside a separate 4-year certificate program \u2014 verified via school program listings.", url:"https://dentistry.llu.edu", iv:{six:"11/17", four:"12/8"}},
+{name:"UCLA School of Dentistry", city:"Los Angeles, CA", type:"State", degree:"Dual Degree", openings:2, lat:34.0669, lon:-118.4452, director:"Dr. Tara L Aghaloo", url:"https://www.dentistry.ucla.edu", iv:{six:"11/10"}},
+{name:"UCSF School of Dentistry", city:"San Francisco, CA", type:"State", degree:"Dual Degree", openings:4, lat:37.7629, lon:-122.4577, director:"Dr. Sohail Saghezchi", url:"https://dentistry.ucsf.edu/", iv:{six:"11/7"}},
+{name:"UCSF-Fresno", city:"Fresno, CA", type:"State", degree:"Single Degree", openings:4, lat:36.7378, lon:-119.7871, director:"Dr. Brian M Woo", url:"http://www.fresno.ucsf.edu/omfs", iv:{single:"10/29"}},
+{name:"Denver Health", city:"Denver, CO", type:"State", degree:"Single Degree", openings:2, lat:39.7285, lon:-104.9958, director:"Dr. Sara H. Anderson", url:"https://www.denverhealth.org", iv:{single:"10/31, 11/14, 11/20"}},
+{name:"University of Connecticut School of Dental Medicine", city:"Farmington, CT", type:"State", degree:"Both", openings:3, lat:41.7198, lon:-72.8317, director:"Dr. Heera Chang", note:"UConn runs a 4-year certificate track (1/yr) alongside a 6-year OMFS-MD track (2/yr) \u2014 verified via dentalmedicine.uconn.edu.", url:"http://dentalmedicine.uconn.edu", split:{four:1, six:2}, iv:{four:"11/11, 11/18", six:"10/28, 11/4, 11/11"}},
+{name:"Yale-New Haven Hospital", city:"New Haven, CT", type:"State", degree:"Single Degree", openings:2, lat:41.3083, lon:-72.9279, director:"Dr. Leonard W Skope", url:"https://www.ynhh.org/medical-professionals/gme", iv:{single:"11/12"}},
+{name:"Christiana Care Health System", city:"Wilmington, DE", type:"State", degree:"Single Degree", openings:2, lat:39.7391, lon:-75.5398, director:"Dr. Barry C Boyd", url:"https://christianacare.org", iv:{single:"11/7, 11/14"}},
+{name:"Howard University College of Dentistry", city:"Washington, DC", type:"State", degree:"Single Degree", openings:3, lat:38.9187, lon:-77.0197, director:"Dr. Dana C Jackson, Sr.", url:"https://dentistry.howard.edu/education/programs/postdoctoral"},
+{name:"MedStar Washington Hospital Center", city:"Washington, DC", type:"State", degree:"Single Degree", openings:3, lat:38.9339, lon:-77.0158, director:"Dr. Saif Abdulateef", url:"http://www.medstarhealth.org/OralSurgeryResidency", iv:{single:"12/6"}},
+{name:"Nova Southeastern University/Broward General Medical Center", city:"Fort Lauderdale, FL", type:"State", degree:"Dual Degree", openings:3, lat:26.1224, lon:-80.2436, director:"Dr. Shawn A McClure", note:"DDS, MD, DMD. The program is mid-transition: it ran a 4-year certificate track through roughly 2026 while phasing in a new 6-year MD track starting with the 2024 entering cohort \u2014 verified via nova.edu/browardhealth.org.", url:"http://dental.nova.edu/oralsurgery/index.html", iv:{six:"11/14"}},
+{name:"University of Florida at Jacksonville-SHANDS", city:"Jacksonville, FL", type:"State", degree:"Dual Degree", openings:3, lat:30.3322, lon:-81.662, director:"Dr. Tirbod T Fattahi", url:"https://omfs.med.jax.ufl.edu", iv:{dual:"10/7, 11/18"}},
+{name:"University of Florida College of Dentistry", city:"Gainesville, FL", type:"State", degree:"Both", openings:3, lat:29.6465, lon:-82.3455, director:"Dr. Danielle L. Freburg-Hoffmeister", note:"UF Gainesville runs a 4-year non-MD track (1/yr) alongside a 6-year residency/MD track (2/yr) \u2014 verified via dental.ufl.edu.", url:"https://dental.ufl.edu", split:{four:1, six:2}, iv:{six:"10/23, 10/30, 11/6", four:"11/13"}},
+{name:"University of Miami/Jackson Memorial Hospital", city:"Miami, FL", type:"State", degree:"Single Degree", openings:4, lat:25.792, lon:-80.2106, director:"Dr. Yoh Sawatari", url:"http://www.jhsmiami.org", iv:{single:"10/27, 11/3, 11/10"}},
+{name:"Emory University School of Medicine", city:"Atlanta, GA", type:"State", degree:"Both", openings:5, lat:33.7973, lon:-84.3238, director:"Dr. Steven M Roser", note:"Emory explicitly offers residents a choice between a 4-year certificate track and a 6-year integrated MD track (5 spots/yr total) \u2014 verified via med.emory.edu.", url:"http://www.surgery.emory.edu/training/omfs-residency.html", iv:{four:"10/25, 10/26, 11/22, 11/23", six:"10/25, 10/26, 11/22, 11/23"}},
+{name:"The Dental College of Georgia at Augusta University", city:"Augusta, GA", type:"State", degree:"Single Degree", openings:2, lat:33.4715, lon:-81.9748, director:"Dr. Marshall Newman", url:"http://www.augusta.edu/dentalmedicine/academics/adved/oralmax", iv:{single:"10/29, 11/5"}},
+{name:"Carle Foundation Hospital", city:"Urbana, IL", type:"State", degree:"Single Degree", openings:2, lat:40.1106, lon:-88.2073, director:"Dr. Jonathan S Bailey", url:"http://www.carle.com/omfsresidency", iv:{single:"10/27, 11/3, 11/10"}},
+{name:"Cook County Hospital/John H. Stroger, Jr.", city:"Chicago, IL", type:"State", degree:"Both", openings:2, lat:41.8724, lon:-87.6688, director:"Dr. Biraj M Shah", note:"Cook County Health's own site describes two parallel positions: a 4-year certificate track and a 6-year MD-integrated track (MD from Rosalind Franklin University) \u2014 verified via cookcountyhealth.org.", url:"https://cookcountyhealth.org", split:{four:1, six:1}, iv:{combined:"10/31, 11/3"}},
+{name:"Loyola University Medical Center", city:"Maywood, IL", type:"State", degree:"Single Degree", openings:2, lat:41.8703, lon:-87.8434, director:"Dr. Stephen P MacLeod", url:"https://www.loyolamedicine.org/gme", iv:{single:"11/3, 11/4"}},
+{name:"University of Illinois at Chicago College of Dentistry", city:"Chicago, IL", type:"State", degree:"Both", openings:3, lat:41.8708, lon:-87.6706, director:"Dr. Michael D Han", note:"UIC runs a 4-year Certificate track (2/yr, optional MS) alongside a 6-year MD-integrated track (1/yr) \u2014 verified via dentistry.uic.edu.", url:"https://dentistry.uic.edu/academic-departments/oral-and-maxillofacial-surgery-department", split:{four:2, six:1}, iv:{combined:"11/10, 11/11"}},
+{name:"Indiana University School of Dentistry", city:"Indianapolis, IN", type:"State", degree:"Single Degree", openings:3, lat:39.7768, lon:-86.175, director:"Dr. William Chung", url:"https://dentistry.iu.edu", iv:{single:"10/24, 10/27"}},
+{name:"University of Iowa College of Dentistry", city:"Iowa City, IA", type:"State", degree:"Single Degree", openings:3, lat:41.6626, lon:-91.5433, director:"Dr. Douglas E Kendrick", url:"https://dentistry.uiowa.edu/departments/oral-and-maxillofacial-surgery", iv:{single:"10/27"}},
+{name:"University of Kentucky College of Dentistry", city:"Lexington, KY", type:"State", degree:"Dual Degree", openings:3, lat:38.0324, lon:-84.5039, director:"Dr. Travis Brian McMaine", url:"http://www.dentistry.uky.edu", iv:{dual:"11/19, 11/21"}},
+{name:"University of Louisville School of Dentistry", city:"Louisville, KY", type:"State", degree:"Dual Degree", openings:2, lat:38.2136, lon:-85.7625, director:"Dr. Robert L Flint", url:"https://louisville.edu/dentistry/residency/oralsurgery", iv:{dual:"10/23, 10/28, 11/4"}},
+{name:"Louisiana State University School of Dentistry", city:"New Orleans, LA", type:"State", degree:"Both", openings:5, lat:29.9584, lon:-90.0763, director:"Dr. Jeffery James", note:"LSU New Orleans explicitly runs a 6-year MD-integrated OMS program alongside a separate 4-year OMS program \u2014 verified via lsusd.lsuhsc.edu.", url:"http://www.lsusd.lsuhsc.edu", iv:{six:"10/23, 12/11", four:"12/4"}},
+{name:"Louisiana State University School of Medicine", city:"Shreveport, LA", type:"State", degree:"Both", openings:4, lat:32.4998, lon:-93.7519, director:"Dr. Celso F Palmieri, Jr", note:"LSU Shreveport selects 3 residents/yr into the 6-year MD-integrated track and 1/yr into a non-MD 4-year track \u2014 verified via lsuhs.edu.", url:"https://www.lsuhsshreveport.edu", split:{four:1, six:3}, iv:{combined:"10/20, 10/27"}},
+{name:"University of Maryland School of Dentistry", city:"Baltimore, MD", type:"State", degree:"Both", openings:3, lat:39.2895, lon:-76.6206, director:"Dr. Nicholas Wilken", note:"Maryland explicitly runs two residency programs: one 4-year certificate position and two 6-year MD positions per year \u2014 verified via dental.umaryland.edu.", url:"http://www.dental.umaryland.edu", split:{four:1, six:2}, iv:{four:"11/19", six:"11/18"}},
+{name:"Boston University Goldman School of Dental Medicine", city:"Boston, MA", type:"State", degree:"Both", openings:4, lat:42.3355, lon:-71.0725, director:"Dr. Richard John Tannyhill, III", note:"BU runs a 4-year CAGS certificate track alongside a 6-year MD-integrated track \u2014 verified via bu.edu.", url:"http://www.bu.edu/dental/academics/departments/omfs/", iv:{four:"11/7", six:"11/8"}},
+{name:"Massachusetts General Hospital", city:"Boston, MA", type:"State", degree:"Dual Degree", openings:3, lat:42.363, lon:-71.0688, url:"http://www.massgeneral.org/omfs", iv:{dual:"11/7"}},
+{name:"Tufts University School of Dental Medicine", city:"Boston, MA", type:"State", degree:"Single Degree", openings:2, lat:42.3505, lon:-71.0623, director:"Dr. Daniel Oreadi", url:"https://dental.tufts.edu", iv:{single:"11/5"}},
+{name:"Ascension Macomb-Oakland Hospital", city:"Warren, MI", type:"State", degree:"Dual Degree", openings:3, lat:42.5145, lon:-83.0334, director:"Dr. Paul F Bermudez", url:"https://www.henryford.com/hcp/med-ed/residencies", iv:{dual:"12/1, 12/3"}},
+{name:"Detroit Receiving Hospital", city:"Detroit, MI", type:"State", degree:"Dual Degree", openings:2, lat:42.3378, lon:-83.0566, director:"Dr. Joseph M Hildebrand", note:"DDS, MD, DMD", url:"http://www.drhuhc.org", iv:{dual:"10/25"}},
+{name:"Henry Ford Health-Henry Ford Hospital", city:"Detroit, MI", type:"State", degree:"Dual Degree", openings:3, lat:42.3384, lon:-83.0873, director:"Dr. Benjamin T Barbetta", url:"https://www.henryford.com/hcp/med-ed/residencies", iv:{dual:"10/2, 11/6, 12/4"}},
+{name:"University of Michigan Health Systems", city:"Ann Arbor, MI", type:"State", degree:"Dual Degree", openings:3, lat:42.2808, lon:-83.7382, director:"Dr. Brent B Ward", url:"https://medschool.umich.edu/departments/surgery", iv:{dual:"11/4, 12/1"}},
+{name:"Mayo Clinic School of Graduate Medical Education", city:"Rochester, MN", type:"State", degree:"Dual Degree", openings:2, lat:44.0225, lon:-92.4667, director:"Dr. Jonathan Fillmore", url:"https://college.mayo.edu/academics/residencies-and-fellowships/oral-and-maxillofacial-surgery-residency-md-oms-minnesota/", iv:{dual:"10/27, 10/28"}},
+{name:"University of Minnesota School of Dentistry", city:"Minneapolis, MN", type:"State", degree:"Single Degree", openings:4, lat:44.9727, lon:-93.2358, director:"Dr. Robert A Nadeau", url:"https://www.dentistry.umn.edu/degrees-program/advanced-education-program/oral-maxillofacial-surgery", iv:{single:"11/20"}},
+{name:"University of Mississippi School of Dentistry", city:"Jackson, MS", type:"State", degree:"Single Degree", openings:2, lat:32.2988, lon:-90.1848, url:"https://umc.edu/sod/Departments/Oral-Maxillofacial-Surgery", iv:{single:"11/13"}},
+{name:"University of Missouri-Kansas City School of Dentistry", city:"Kansas City, MO", type:"State", degree:"Both", openings:3, lat:39.0977, lon:-94.5786, director:"Dr. Adam B Flack", note:"UMKC runs a 4-year certificate track (1/yr) alongside a 6-year certificate+MD track (2/yr) \u2014 verified via dentistry.umkc.edu.", url:"https://dentistry.umkc.edu", split:{four:1, six:2}, iv:{combined:"(see program)"}},
+{name:"University of Nebraska-College of Medicine", city:"Omaha, NE", type:"State", degree:"Dual Degree", openings:2, lat:41.2596, lon:-95.9938, director:"Dr. Valmont P Desa", url:"https://www.unmc.edu/surgery/divisions/oralmax/", iv:{six:"11/10, 11/17"}},
+{name:"Rutgers School of Dental Medicine", city:"Newark, NJ", type:"State", degree:"Both", openings:4, lat:40.742, lon:-74.1929, director:"Dr. Rabie Shanti", note:"Rutgers runs a 4-year track alongside a 6-year integrated MD track with New Jersey Medical School \u2014 reported consistently in the program's own PASS listing and resident program updates.", url:"http://sdm.rutgers.edu/", iv:{six:"12/10"}},
+{name:"St. Joseph's University Medical Center", city:"Paterson, NJ", type:"State", degree:"Single Degree", openings:2, lat:40.9147, lon:-74.1656, director:"Dr. Richard P Szumita", url:"https://stjosephshealth.org/education/graduate-medical-education", iv:{single:"11/12, 11/19, 11/26, 12/8, 12/15"}},
+{name:"Brookdale Hospital Medical Center", city:"Brooklyn, NY", type:"State", degree:"Single Degree", openings:2, lat:40.6532, lon:-73.9109, director:"Dr. Keith E Murtagh", url:"http://www.brookdalehospital.org/dental-residency.html"},
+{name:"Harlem Hospital Center Dept of Dentistry", city:"New York, NY", type:"State", degree:"Single Degree", openings:1, lat:40.8225, lon:-73.9425, director:"Dr. James R King", url:"https://www.nychealthandhospitals.org/harlem/"},
+{name:"Kings County Hospital Downstate Medical Center", city:"Brooklyn, NY", type:"State", degree:"Dual Degree", openings:3, lat:40.6558, lon:-73.945, director:"Dr. Yuriy Yusupov", url:"https://www.nychealthandhospitals.org/kingscounty/"},
+{name:"Lincoln Medical & Mental Health Center", city:"Bronx, NY", type:"State", degree:"Single Degree", openings:2, lat:40.8163, lon:-73.9174, director:"Dr. Robert Pellecchia", url:"https://www.lincolnomfs.com/", iv:{single:"11/20"}},
+{name:"Montefiore Medical Center - Dept of Dentistry", city:"Bronx, NY", type:"State", degree:"Single Degree", openings:5, lat:40.8611, lon:-73.8782, director:"Dr. Patrick J Nolan", note:"Program's own site describes a 4-year OMFS residency (with an optional PGY-2 internship year); no MD/dual-degree track is described, so classified as Single Degree \u2014 verified via montefioreeinstein.org.", url:"https://montefioreeinstein.org", iv:{single:"12/5, 12/9"}},
+{name:"Mount Sinai BI / Jacobi / Albert Einstein College of Med", city:"New York, NY", type:"State", degree:"Dual Degree", openings:2, lat:40.7346, lon:-73.9871, director:"Dr. Michael Turner", url:"https://icahn.mssm.edu/education/residencies-fellowships", iv:{dual:"11/6, 11/12"}},
+{name:"Nassau University Medical Center", city:"East Meadow, NY", type:"State", degree:"Single Degree", openings:1, lat:40.7126, lon:-73.5568, director:"Dr. Oren D Richman", url:"http://www.numc.edu", iv:{single:"12/4, 12/11"}},
+{name:"New York Medical College", city:"Valhalla, NY", type:"State", degree:"Single Degree", openings:2, lat:41.0787, lon:-73.7952, director:"Dr. Leslie Robin Halpern", url:"http://www.nymc.edu", iv:{single:"11/12, 11/13"}},
+{name:"New York Presbyterian Hospital / Columbia", city:"New York, NY", type:"State", degree:"Dual Degree", openings:2, lat:40.8404, lon:-73.9425, director:"Dr. Alia Koch", url:"https://www.dental.columbia.edu/education/postdoctoral-programs", iv:{dual:"11/21, 12/10"}},
+{name:"New York Presbyterian / Weill Cornell Medicine", city:"New York, NY", type:"State", degree:"Single Degree", openings:2, lat:40.7648, lon:-73.9551, director:"Dr. Gwendolyn S Reeve", url:"https://surgery.weill.cornell.edu/education-and-training", iv:{single:"11/6, 11/7"}},
+{name:"New York University College of Dentistry", city:"New York, NY", type:"State", degree:"Both", openings:3, lat:40.7381, lon:-73.9812, director:"Dr. Vasiliki Karlis", note:"NYU runs a 4-year certificate track (1/yr) alongside a 6-year OMS/MD track (2/yr) \u2014 verified via dental.nyu.edu.", url:"http://www.nyu.edu/dental/", split:{four:1, six:2}, iv:{four:"12/4", six:"11/6"}},
+{name:"NYC Health + Hospitals/Woodhull", city:"Brooklyn, NY", type:"State", degree:"Single Degree", openings:2, lat:40.6975, lon:-73.9366, url:"https://www.nychealthandhospitals.org/woodhull/"},
+{name:"Rochester General Hospital", city:"Rochester, NY", type:"State", degree:"Single Degree", openings:2, lat:43.1745, lon:-77.5978, director:"Dr. Thomas E. Helfst", note:"DDS, DMD", url:"https://education.rochesterregional.org/residencies/oral-and-maxillofacial-surgery", iv:{single:"12/9, 12/10, 12/16"}},
+{name:"The Brooklyn Hospital Center", city:"Brooklyn, NY", type:"State", degree:"Single Degree", openings:3, lat:40.6893, lon:-73.9776, director:"Dr. Harry Dym", url:"http://tbh.org/medical-education/dentistryoral-max-surgery"},
+{name:"University at Buffalo School of Dental Medicine", city:"Buffalo, NY", type:"State", degree:"Dual Degree", openings:2, lat:42.9561, lon:-78.8144, director:"Dr. Robert L Cronyn", url:"https://dental.buffalo.edu/education/advanced-education/oral-maxillofacial-surgery.html", iv:{dual:"10/31"}},
+{name:"University of Rochester Eastman Institute for Oral Health", city:"Rochester, NY", type:"State", degree:"Both", openings:3, lat:43.1477, lon:-77.6197, director:"Dr. Dina Amin", note:"Eastman's original 4-year certificate program was recently joined by a newly added 6-year MD-integrated track (plus an EMBA option on the 4-year side) \u2014 verified via urmc.rochester.edu.", url:"http://www.urmc.rochester.edu/dentistry/education/surgery.aspx", iv:{combined:"10/27, 10/28"}},
+{name:"Zucker School of Medicine at Hofstra/Northwell (LIJ)", city:"New Hyde Park, NY", type:"State", degree:"Both", openings:4, lat:40.7527, lon:-73.7093, director:"Dr. Hunter J Martin", note:"Northwell's own site describes 4 categorical spots/yr: 2 for the four-year certificate-only track and 2 for the six-year MD-integrated track \u2014 verified via northwell.edu.", url:"https://www.northwell.edu/graduate-medical-education", split:{four:2, six:2}, iv:{combined:"11/17, 11/18"}},
+{name:"University of North Carolina at Chapel Hill", city:"Chapel Hill, NC", type:"State", degree:"Dual Degree", openings:3, lat:35.9046, lon:-79.047, director:"Dr. Ashley E Manlove", url:"http://www.dent.unc.edu", iv:{dual:"11/14, 11/21"}},
+{name:"Case Western Reserve Univ. School of Dental Medicine", city:"Cleveland, OH", type:"State", degree:"Dual Degree", openings:4, lat:41.5044, lon:-81.6083, director:"Dr. Dale A Baur", note:"Primary track is a 5-year MD-integrated program (the only one of its kind nationally, ~3 domestic spots/yr). Case Western also offers a 4-year MSD certificate track, but it's restricted to international applicants only \u2014 verified via case.edu.", url:"http://www.case.edu/dental", iv:{dual:"10/3, 11/7"}},
+{name:"Ohio State University College of Dentistry", city:"Columbus, OH", type:"State", degree:"Single Degree", openings:2, lat:39.9967, lon:-83.0197, director:"Dr. Kelly Kennedy", url:"http://www.dent.ohio-state.edu", iv:{single:"12/1, 12/3"}},
+{name:"University of Cincinnati Medical Center", city:"Cincinnati, OH", type:"State", degree:"Single Degree", openings:3, lat:39.1329, lon:-84.515, director:"Dr. Deepak G Krishnan", url:"http://surgery.uc.edu/oms/", iv:{single:"11/7, 11/8"}},
+{name:"University of Oklahoma College of Dentistry", city:"Oklahoma City, OK", type:"State", degree:"Single Degree", openings:4, lat:35.4886, lon:-97.5169, director:"Dr. Fabio G Ritto", url:"http://dentistry.ouhsc.edu", iv:{single:"10/18"}},
+{name:"Oregon Health and Science University", city:"Portland, OR", type:"State", degree:"Dual Degree", openings:2, lat:45.4989, lon:-122.6844, director:"Dr. Mark Engelstad", url:"http://www.ohsu.edu/sod/admissions", iv:{dual:"11/13"}},
+{name:"Allegheny General Hospital", city:"Pittsburgh, PA", type:"State", degree:"Single Degree", openings:3, lat:40.4489, lon:-80.0072, director:"Dr. Joseph E Cillo, Jr", url:"https://www.ahn.org/education/graduate-medical-education", iv:{single:"12/13"}},
+{name:"Geisinger Medical Center Dental Department", city:"Danville, PA", type:"State", degree:"Both", openings:4, lat:40.9614, lon:-76.6119, director:"Dr. Paul A Covello", note:"DDS, MD, DMD. Geisinger explicitly runs parallel 4-year and 6-year pathways, accepting 2 residents/yr into each \u2014 verified via geisinger.edu.", url:"https://www.geisinger.edu/education/residencies-and-fellowships", split:{four:2, six:2}, iv:{combined:"10/14, 10/15, 10/28, 10/29"}},
+{name:"Temple University Hospital", city:"Philadelphia, PA", type:"State", degree:"Single Degree", openings:3, lat:39.9963, lon:-75.1436, director:"Dr. Paul D Deitrick", url:"http://www.templeomfs.com", iv:{four:"12/1, 12/8"}},
+{name:"Temple University Kornberg School of Dentistry", city:"Philadelphia, PA", type:"State", degree:"Dual Degree", openings:1, lat:39.9838, lon:-75.159, director:"Dr. Pooja Gangwani", url:"http://www.temple.edu/dentistry", iv:{six:"11/21"}},
+{name:"Thomas Jefferson University Hospital", city:"Philadelphia, PA", type:"State", degree:"Single Degree", openings:4, lat:39.9484, lon:-75.1585, director:"Dr. Allen F Champion", url:"http://www.jeffersonhospital.org/omfs", iv:{single:"11/18, 11/20"}},
+{name:"University of Pennsylvania School of Dental Medicine", city:"Philadelphia, PA", type:"State", degree:"Dual Degree", openings:4, lat:39.9498, lon:-75.1932, director:"Dr. Steven W Wang", url:"http://www.dental.upenn.edu", iv:{dual:"11/13, 11/14"}},
+{name:"University of Pittsburgh School of Dental Medicine", city:"Pittsburgh, PA", type:"State", degree:"Both", openings:3, lat:40.4423, lon:-79.9611, director:"Dr. Helen Giannakopoulos", note:"The program's own site describes two tracks: a six-year MD dual-degree path (2 spots/yr) and a four-year single-degree path (1 spot/yr) \u2014 verified via dental.pitt.edu.", url:"http://www.dental.pitt.edu", split:{four:1, six:2}, iv:{four:"12/11", six:"12/12"}},
+{name:"University of Puerto Rico School of Dental Medicine", city:"San Juan, PR", type:"State", degree:"Single Degree", openings:3, lat:18.4655, lon:-66.1057, director:"Dr. Francisco L. Bermudez Segarra", pr:true, url:"http://dental.rcm.upr.edu/oral-and-maxillofacial-surgery/", iv:{single:"11/19"}},
+{name:"Medical University of South Carolina", city:"Charleston, SC", type:"State", degree:"Single Degree", openings:3, lat:32.7876, lon:-79.9403, director:"Dr. Mark Allen Miller", url:"http://www.musc.edu/dentistry/", iv:{single:"12/1, 12/15"}},
+{name:"Meharry Medical College School of Dentistry", city:"Nashville, TN", type:"State", degree:"Single Degree", openings:1, lat:36.1699, lon:-86.8064, director:"Dr. Kimberley L Perkins-Davis", url:"http://www.mmc.edu/education/dentistry/"},
+{name:"University of Tennessee College of Dentistry", city:"Memphis, TN", type:"State", degree:"Single Degree", openings:2, lat:35.1398, lon:-90.043, director:"Dr. Brett A Wilson", note:"Primary track is the 4-year certificate program (2 spots/yr). UTHSC's own site notes an optional 6-year MD track is available \"in specific cases,\" though it isn't a standing parallel track \u2014 verified via uthsc.edu.", url:"http://www.uthsc.edu/dentistry/grad/oms", iv:{single:"10/27, 10/30, 10/31, 11/3"}},
+{name:"University of Tennessee Medical Center - Knoxville", city:"Knoxville, TN", type:"State", degree:"Both", openings:2, lat:35.9412, lon:-83.9557, director:"Dr. Michael Lee Winstead", note:"The program's own site describes 1 spot/yr for the four-year track plus 2 spots/yr for the six-year MD track (3 total) \u2014 verified via com.utmck.edu.", url:"http://gsm.utmck.edu/oral_surg/main.cfm", split:{four:1, six:2}, iv:{six:"11/10, 11/17, 11/22"}},
+{name:"Vanderbilt University Medical Center", city:"Nashville, TN", type:"State", degree:"Both", openings:3, lat:36.1424, lon:-86.8025, director:"Dr. Susie I Lin", note:"Vanderbilt explicitly offers both a six-year and four-year track, accepting 2 residents/yr into the four-year program and 1/yr into the six-year OMS-MD program \u2014 verified via vumc.org.", url:"http://www.vumc.org/oral-max-surgery", split:{four:2, six:1}, iv:{six:"11/1", four:"11/15"}},
+{name:"Parkland Memorial Hospital / UT Southwestern", city:"Dallas, TX", type:"State", degree:"Dual Degree", openings:5, lat:32.809, lon:-96.839, director:"Dr. Thomas Schlieve", url:"http://www.utsouthwestern.edu/oms", iv:{dual:"12/5"}},
+{name:"Texas A&M University College of Dentistry", city:"Dallas, TX", type:"State", degree:"Dual Degree", openings:3, lat:32.7935, lon:-96.777, director:"Dr. Andrew M Read-Fuller", note:"Primary track is the 6-year MD/Certificate program (open applicants). The program also occasionally runs a separate 4-year certificate-only track, but that track is restricted to active-duty US military applicants only \u2014 verified via dentistry.tamu.edu.", url:"https://dentistry.tamu.edu/departments/oral-maxillofacial-surgery", iv:{dual:"12/1, 12/2"}},
+{name:"UT School of Dentistry at Houston", city:"Houston, TX", type:"State", degree:"Both", openings:6, lat:29.7099, lon:-95.4009, director:"Dr. Jonathan W Shum", note:"UTHealth Houston runs parallel 4-year and 6-year tracks, enrolling 3 residents/yr into each (6 total) \u2014 verified via dentistry.uth.edu.", url:"http://www.db.uth.tmc.edu/", split:{four:3, six:3}, iv:{four:"10/27, 11/3, 11/10", six:"10/27, 11/3, 11/10, 11/17"}},
+{name:"University of Texas Medical Branch Hospital", city:"Galveston, TX", type:"State", degree:"Single Degree", openings:1, lat:29.3084, lon:-94.7871, director:"Dr. Jeffrey J Garcia", url:"http://www.utmb.edu/surgery/Oral.htm"},
+{name:"UT Health San Antonio, School of Dentistry", city:"San Antonio, TX", type:"State", degree:"Dual Degree", openings:3, lat:29.501, lon:-98.5806, director:"Dr. Joshua Stone", note:"Primary track is the 6-year medical-degree program (3 spots/yr). The program's own site notes it \"occasionally\" also offers a 4-year certificate-only track to meet programmatic needs \u2014 verified via uthscsa.edu.", url:"https://uthscsa.edu/dental/programs/oral-and-maxillofacial-surgery", iv:{dual:"11/20, 11/21"}},
+{name:"Virginia Commonwealth University School of Dentistry", city:"Richmond, VA", type:"State", degree:"Single Degree", openings:3, lat:37.5432, lon:-77.434, director:"Dr. Yotom A Rabinowitz", url:"http://www.dentistry.vcu.edu"},
+{name:"University of Washington School of Dentistry", city:"Seattle, WA", type:"State", degree:"Dual Degree", openings:3, lat:47.6501, lon:-122.305, director:"Dr. Jasjit K Dillon", url:"http://www.dental.washington.edu/deot-oms/residency/", iv:{dual:"11/18, 12/2"}},
+{name:"West Virginia University School of Dentistry", city:"Morgantown, WV", type:"State", degree:"Single Degree", openings:1, lat:39.639, lon:-79.9539, director:"Dr. Bryan D Weaver", url:"https://dentistry.hsc.wvu.edu/departments/oral-maxillofacial-surgery"},
+{name:"Gundersen Lutheran Medical Center", city:"La Crosse, WI", type:"State", degree:"Single Degree", openings:1, lat:43.8014, lon:-91.2396, director:"Dr. Deepa Sathiah", url:"http://www.gundersenhealth.org"}
+];
+
+const colorFor = d => {
+  if (d.type === "Federal") return "var(--federal)";
+  if (d.degree === "Dual Degree") return "var(--dual)";
+  if (d.degree === "Both") return "var(--both)";
+  return "var(--single)";
+};
+const keyFor = d => d.type === "Federal" ? "Federal" : (d.degree === "Dual Degree" ? "Dual" : (d.degree === "Both" ? "Both" : "Single"));
+
+const svg = d3.select("#svgmap");
+const width = 960, height = 600;
+const projection = d3.geoAlbersUsa().scale(1250).translate([487, 305]);
+
+const zoomLayer = svg.append("g").attr("class", "zoom-layer");
+const g = zoomLayer.append("g");
+const dotsLayer = zoomLayer.append("g");
+
+let activeFilters = new Set(["Single","Dual","Both","Federal"]);
+let searchTerm = "";
+let currentZoomK = 1;
+
+const zoomBehavior = d3.zoom()
+  .scaleExtent([1, 20])
+  .translateExtent([[0, 0], [width, height]])
+  .on("zoom", (event) => {
+    currentZoomK = event.transform.k;
+    zoomLayer.attr("transform", event.transform);
+    // Keep dot size visually constant on screen as you zoom, so positions spread apart
+    // (making overlapping programs distinguishable) without the circles ballooning in size.
+    dotsLayer.selectAll("circle.dot").attr("r", d => d.baseR / currentZoomK);
+  });
+
+svg.call(zoomBehavior);
+
+d3.select("#zoom-in").on("click", () => {
+  svg.transition().duration(200).call(zoomBehavior.scaleBy, 1.6);
+});
+d3.select("#zoom-out").on("click", () => {
+  svg.transition().duration(200).call(zoomBehavior.scaleBy, 1 / 1.6);
+});
+d3.select("#zoom-reset").on("click", () => {
+  svg.transition().duration(300).call(zoomBehavior.transform, d3.zoomIdentity);
+});
+
+function drawStates(geojson) {
+  g.selectAll("path")
+    .data(geojson.features)
+    .join("path")
+    .attr("class", "state")
+    .attr("d", d3.geoPath().projection(projection));
+}
+
+// Minimal self-contained TopoJSON -> GeoJSON decoder (no external library needed).
+// Implements the standard TopoJSON spec: dequantize via transform, then stitch arcs.
+function topojsonFeature(topology, objectName) {
+  const obj = topology.objects[objectName];
+  const arcs = topology.arcs;
+  const transform = topology.transform;
+
+  function decodeArc(arc) {
+    // Each arc is a list of [dx, dy] delta-encoded points (when quantized).
+    const points = [];
+    let x = 0, y = 0;
+    for (let i = 0; i < arc.length; i++) {
+      let px = arc[i][0], py = arc[i][1];
+      if (transform) {
+        x += px; y += py;
+        points.push([
+          x * transform.scale[0] + transform.translate[0],
+          y * transform.scale[1] + transform.translate[1]
+        ]);
+      } else {
+        points.push([px, py]);
+      }
+    }
+    return points;
+  }
+
+  const decodedArcs = arcs.map(decodeArc);
+
+  function arcRefToLine(index) {
+    // Negative indices mean "use arc ~index reversed".
+    if (index < 0) {
+      const line = decodedArcs[~index].slice();
+      line.reverse();
+      return line;
+    }
+    return decodedArcs[index].slice();
+  }
+
+  function stitch(arcIndexes) {
+    // Concatenate the arcs that make up one ring, dropping duplicated join points.
+    let ring = [];
+    for (let i = 0; i < arcIndexes.length; i++) {
+      let line = arcRefToLine(arcIndexes[i]);
+      if (i > 0) line = line.slice(1);
+      ring = ring.concat(line);
+    }
+    return ring;
+  }
+
+  function geomToCoords(geom) {
+    if (geom.type === "Polygon") {
+      return geom.arcs.map(stitch);
+    } else if (geom.type === "MultiPolygon") {
+      return geom.arcs.map(poly => poly.map(stitch));
+    }
+    return null;
+  }
+
+  const features = obj.geometries.map(geom => ({
+    type: "Feature",
+    properties: geom.properties || {},
+    geometry: geomToCoords(geom) ? { type: geom.type, coordinates: geomToCoords(geom) } : null
+  })).filter(f => f.geometry);
+
+  return { type: "FeatureCollection", features };
+}
+
+d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json")
+  .then(us => {
+    const statesGeo = topojsonFeature(us, "states");
+    drawStates(statesGeo);
+  })
+  .catch(err => {
+    console.error("Basemap failed to load; showing markers without state boundaries.", err);
+  })
+  .finally(renderDots);
+
+function renderDots() {
+  const mainland = programs.filter(p => !p.pr);
+  const projected = mainland.map(p => {
+    const xy = projection([p.lon, p.lat]);
+    return xy ? {...p, x: xy[0], y: xy[1]} : null;
+  }).filter(Boolean);
+
+  const openingsExtent = d3.extent(programs, d => d.openings);
+  const radiusScale = d3.scaleSqrt()
+    .domain([openingsExtent[0], openingsExtent[1]])
+    .range([4, 19])
+    .clamp(true);
+
+  projected.forEach(d => { d.baseR = radiusScale(d.openings); });
+
+  const tooltip = d3.select("#tooltip");
+  const mapbox = document.getElementById("mapbox");
+
+  const dots = dotsLayer.selectAll("circle.dot")
+    .data(projected, d => d.name + d.city);
+
+  dots.join("circle")
+    .attr("class", "dot")
+    .attr("cx", d => d.x)
+    .attr("cy", d => d.y)
+    .attr("r", d => d.baseR / currentZoomK)
+    .attr("fill", colorFor)
+    .attr("fill-opacity", 0.85)
+    .on("mousemove", function(event, d) {
+      const rect = mapbox.getBoundingClientRect();
+      const mx = event.clientX - rect.left;
+      const my = event.clientY - rect.top;
+
+      tooltip.html(`<b>${d.name}</b>
+          <span class="muted">${d.city}</span><br>
+          Program type: <b>${d.degree}</b><br>
+          Annual openings: <b>${d.openings}</b><br>
+          ${d.director ? "Director: " + d.director + "<br>" : ""}
+          ${d.note ? `<span class="muted">${d.note}</span>` : ""}`)
+        .style("opacity", 1);
+
+      // Measure after content is set so height/width are accurate
+      const tw = tooltip.node().offsetWidth;
+      const th = tooltip.node().offsetHeight;
+      const pad = 8;
+
+      let left = mx + 14;
+      if (left + tw > rect.width - pad) left = mx - tw - 14; // flip to the left of cursor
+      left = Math.max(pad, Math.min(left, rect.width - tw - pad));
+
+      let top = my - 10;
+      if (top + th > rect.height - pad) top = rect.height - th - pad; // clamp so bottom never overflows
+      top = Math.max(pad, top);
+
+      tooltip.style("left", left + "px").style("top", top + "px");
+    })
+    .on("mouseleave", () => tooltip.style("opacity", 0));
+
+  updateVisibility();
+  document.getElementById("count").textContent =
+    `Showing ${countVisible()} of ${programs.length} accredited programs`;
+}
+
+function countVisible() {
+  return programs.filter(matches).length;
+}
+function matches(d) {
+  const key = keyFor(d);
+  if (!activeFilters.has(key)) return false;
+  if (searchTerm) {
+    const hay = (d.name + " " + d.city).toLowerCase();
+    if (!hay.includes(searchTerm)) return false;
+  }
+  return true;
+}
+function updateVisibility() {
+  dotsLayer.selectAll("circle.dot")
+    .classed("dimmed", d => !matches(d));
+  d3.select("#tooltip").style("opacity", 0);
+}
+
+d3.selectAll(".legend-item").on("click", function() {
+  const key = this.dataset.key;
+  const el = d3.select(this);
+  if (activeFilters.has(key)) { activeFilters.delete(key); el.classed("off", true); }
+  else { activeFilters.add(key); el.classed("off", false); }
+  updateVisibility();
+  document.getElementById("count").textContent =
+    `Showing ${countVisible()} of ${programs.length} accredited programs`;
+});
+
+document.getElementById("search").addEventListener("input", function() {
+  searchTerm = this.value.trim().toLowerCase();
+  updateVisibility();
+  document.getElementById("count").textContent =
+    `Showing ${countVisible()} of ${programs.length} accredited programs`;
+});
+
+// Puerto Rico inset marker (outside AlbersUSA projection extent)
+const prProgram = programs.find(p => p.pr);
+if (prProgram) {
+  const insetDiv = document.createElement("div");
+  insetDiv.id = "pr-inset";
+  insetDiv.innerHTML = `Puerto Rico: <span style="color:var(--single); font-weight:600;">●</span> ${prProgram.name} — ${prProgram.degree}, ${prProgram.openings} openings/yr`;
+  document.getElementById("mapbox").appendChild(insetDiv);
+}
+
+// ---------- Sortable / filterable program table ----------
+// Standard OMFS mapping: Single Degree = 4-year certificate; Dual Degree = 6-year MD-integrated;
+// Both = runs both pathways; Federal (military) = 4-year certificate. Programs with a clean
+// per-track split (p.split) are broken into two rows so the 4-yr and 6-yr spots show separately.
+function ivFor(p, track) {
+  // track: "four" | "six" | "single". Returns a display string (may be "").
+  const iv = p.iv;
+  if (!iv) return "";
+  let raw = "";
+  if (track === "four") raw = iv.four || iv.combined || "";
+  else if (track === "six") raw = iv.six || iv.combined || "";
+  else raw = iv.single || iv.dual || iv.combined || iv.four || iv.six || "";
+  if (!raw || raw === "(see program)") return "";
+  return raw;
+}
+
+function buildRows() {
+  const rows = [];
+  programs.forEach(p => {
+    const parts = p.city.split(",").map(s => s.trim());
+    const state = parts[parts.length - 1];
+    const cityName = parts.slice(0, -1).join(", ") || p.city;
+    const base = { name: p.name, cityName, state, director: p.director || "",
+                   note: p.note || "", url: p.url || "", raw: p };
+
+    if (p.split) {
+      // two rows: 4-year and 6-year, with their own spot counts + interview dates
+      rows.push({ ...base, id: p.name + "|4", trackType: "4-yr", tracksRank: 0,
+                  openings: p.split.four, interview: ivFor(p, "four") });
+      rows.push({ ...base, id: p.name + "|6", trackType: "6-yr", tracksRank: 1,
+                  openings: p.split.six, interview: ivFor(p, "six") });
+    } else {
+      let has4 = false, has6 = false;
+      if (p.degree === "Single Degree") has4 = true;
+      else if (p.degree === "Dual Degree") has6 = true;
+      else if (p.degree === "Both") { has4 = true; has6 = true; }
+      if (p.type === "Federal") has4 = true;
+      const trackType = (has4 && has6) ? "both" : (has6 ? "6-yr" : "4-yr");
+      const tracksRank = (has4 && has6) ? 2 : (has6 ? 1 : 0);
+      // interview: prefer combined display of 4/6 if both present
+      let interview = ivFor(p, "single");
+      if (p.iv && p.iv.four && p.iv.six && p.iv.four !== p.iv.six)
+        interview = "4-yr: " + p.iv.four + " · 6-yr: " + p.iv.six;
+      else if (p.iv && p.iv.four && p.iv.six)
+        interview = p.iv.four;
+      rows.push({ ...base, id: p.name, trackType, tracksRank, openings: p.openings, interview });
+    }
+  });
+  return rows;
+}
+
+const tableRows = buildRows();
+const selected = new Set();
+let tableSort = { key: "state", dir: 1 };
+let tableFilter = "";
+
+function trackBadge(r) {
+  if (r.trackType === "both")
+    return '<span class="track-badge track-4">4-yr</span><span class="track-badge track-6">6-yr</span>';
+  if (r.trackType === "6-yr") return '<span class="track-badge track-6">6-yr</span>';
+  return '<span class="track-badge track-4">4-yr</span>';
+}
+
+function compare(a, b, key) {
+  let av, bv;
+  if (key === "tracks") { av = a.tracksRank; bv = b.tracksRank; }
+  else if (key === "openings") { av = a.openings; bv = b.openings; }
+  else if (key === "interview") { av = a.interview || "~"; bv = b.interview || "~"; }
+  else { av = (a[key] || "").toString().toLowerCase(); bv = (b[key] || "").toString().toLowerCase(); }
+  if (av < bv) return -1;
+  if (av > bv) return 1;
+  return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1;
+}
+
+function currentRows() {
+  const term = tableFilter;
+  let rows = tableRows.filter(r => {
+    if (!term) return true;
+    return [r.name, r.cityName, r.state, r.director, r.note]
+      .some(v => (v || "").toString().toLowerCase().includes(term));
+  });
+  rows.sort((a, b) => tableSort.dir * compare(a, b, tableSort.key));
+  return rows;
+}
+
+function renderTable() {
+  const rows = currentRows();
+  const body = document.getElementById("table-body");
+  body.innerHTML = rows.map(r => `
+    <tr>
+      <td class="check-col"><input type="checkbox" class="row-check" data-id="${encodeURIComponent(r.id)}" ${selected.has(r.id) ? "checked" : ""}></td>
+      <td>${r.name}</td>
+      <td>${r.cityName}</td>
+      <td>${r.state}</td>
+      <td>${trackBadge(r)}</td>
+      <td>${r.openings}</td>
+      <td class="iv-cell">${r.interview || '<span class="iv-label">—</span>'}</td>
+      <td class="dir-cell">${r.director || '<span class="track-none">—</span>'}</td>
+      <td>${r.url ? `<a class="site-link" href="${r.url}" target="_blank" rel="noopener">Visit →</a>` : '<span class="track-none">—</span>'}</td>
+      <td class="notes-cell">${r.note || ""}</td>
+    </tr>`).join("");
+
+  document.getElementById("table-count").textContent = `${rows.length} of ${tableRows.length} rows`;
+
+  // wire row checkboxes
+  body.querySelectorAll(".row-check").forEach(cb => {
+    cb.addEventListener("change", function() {
+      const id = decodeURIComponent(this.dataset.id);
+      if (this.checked) selected.add(id); else selected.delete(id);
+      updateSelectedUI(rows);
+    });
+  });
+  updateSelectedUI(rows);
+
+  // header arrows
+  document.querySelectorAll("table.programs thead th").forEach(th => {
+    const key = th.dataset.sort;
+    const arrow = th.querySelector(".arrow");
+    th.classList.remove("sorted");
+    if (arrow) arrow.textContent = "";
+    if (key && key === tableSort.key) {
+      th.classList.add("sorted");
+      if (arrow) arrow.textContent = tableSort.dir === 1 ? "▲" : "▼";
+    }
+  });
+}
+
+function updateSelectedUI(rows) {
+  document.getElementById("selected-count").textContent = `${selected.size} selected`;
+  document.getElementById("export-btn").disabled = selected.size === 0;
+  const visible = rows || currentRows();
+  const allChecked = visible.length > 0 && visible.every(r => selected.has(r.id));
+  const sa = document.getElementById("select-all");
+  sa.checked = allChecked;
+  sa.indeterminate = !allChecked && visible.some(r => selected.has(r.id));
+}
+
+document.querySelectorAll("table.programs thead th").forEach(th => {
+  const key = th.dataset.sort;
+  if (!key) return;
+  th.addEventListener("click", () => {
+    if (tableSort.key === key) tableSort.dir *= -1;
+    else { tableSort.key = key; tableSort.dir = 1; }
+    renderTable();
+  });
+});
+
+document.getElementById("table-search").addEventListener("input", function() {
+  tableFilter = this.value.trim().toLowerCase();
+  renderTable();
+});
+
+document.getElementById("select-all").addEventListener("change", function() {
+  const rows = currentRows();
+  if (this.checked) rows.forEach(r => selected.add(r.id));
+  else rows.forEach(r => selected.delete(r.id));
+  renderTable();
+});
+
+// ---- CSV export of selected rows ----
+function csvCell(v) {
+  v = (v == null ? "" : String(v));
+  if (/[",\n]/.test(v)) v = '"' + v.replace(/"/g, '""') + '"';
+  return v;
+}
+document.getElementById("export-btn").addEventListener("click", () => {
+  const chosen = tableRows.filter(r => selected.has(r.id));
+  if (!chosen.length) return;
+  const headers = ["Program","City","State","Track","Annual openings","Interview dates (2026 cycle)","Program director","Website","Notes"];
+  const lines = [headers.map(csvCell).join(",")];
+  chosen.forEach(r => {
+    const track = r.trackType === "both" ? "4-yr & 6-yr" : r.trackType;
+    lines.push([r.name, r.cityName, r.state, track, r.openings, r.interview, r.director, r.url, r.note]
+      .map(csvCell).join(","));
+  });
+  const csv = "\ufeff" + lines.join("\r\n"); // BOM so Excel reads UTF-8
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "omfs_programs_selected.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+renderTable();
+</script>
+{% endraw %}
