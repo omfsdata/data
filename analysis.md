@@ -81,7 +81,7 @@ Among the 73 applicants who reported everything including class rank, all four p
 
 The headline is that CBSE, rank, and research are genuinely distinct levers — you could be lighter in one and buy back interview invites using another.
 
-{% include figure.html num="6" src="fig03_multivariate.png" caption="Standardized effect of each metric on interview conversion (binomial GLM, n = 73; bars are 95% confidence intervals). The class-rank coefficient is flipped so that "better rank" points positive, for readability. CBSE leads, rank is second, research third; externships is not significant once the others are controlled for." %}
+{% include figure.html num="6" src="fig03_multivariate.png" caption="Standardized effect of each metric on interview conversion (binomial GLM, n = 73; bars are 95% confidence intervals). The class-rank coefficient is flipped so that better rank points positive, for readability. CBSE leads, rank is second, research third; externships is not significant once the others are controlled for." %}
 
 ## 7. The application funnel
 The attrition is overwhelmingly at the first step — applications to invites. Once applicants reach the interview, they rank almost everything they attend. In other words, for these matchers the binding constraint was *getting invited*, not converting interviews into a rank slot.
