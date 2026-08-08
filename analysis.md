@@ -56,7 +56,7 @@ The bubble sizes are telling, too: several low scorers still matched by applying
 
 An applicant's research intensity also tracks with interview conversion (**ρ = 0.29**, *p* = 0.002): median conversion climbs steadily from **46%** (no research) to **71%** (heavy research). Six-year matchers also carry more research than 4-year matchers — the "heavy" band is visibly larger for 6-year programs — consistent with academic medical centers valuing it.
 
-Note that research and CBSE score are essentially **uncorrelated** (not shown, ρ = 0.12, not significant), which means that research looks like a genuinely independent path to invites rather than a proxy for test-taking ability (though please note the disclaimer about selection bias)
+Note that research and CBSE score are essentially **uncorrelated** (not shown, ρ = 0.12, not significant), which means that research looks like a genuinely independent path to invites rather than a proxy for test-taking ability (though please note the disclaimer about reporting bias and low N).
 
 {% include figure.html num="3" src="f4_research.png" wide="true" caption="Left: research intensity by program length — 6-year matchers report more heavy research. Right: interview conversion rises monotonically with research intensity." %}
 
