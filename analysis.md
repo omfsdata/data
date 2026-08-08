@@ -8,7 +8,7 @@ container: page
 
 <p class="eyebrow">Exploratory data analysis</p>
 
-# What seven years of SDN match posts say about the OMFS match
+# What 7 years of SDN match posts say about the OMFS match
 {: .title}
 
 An exploratory look at self-reported Oral & Maxillofacial Surgery residency match results from the Student Doctor Network Forum, 2020–2026 · 111 matched applicants
