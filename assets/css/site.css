@@ -61,7 +61,7 @@ body {
 
 /* ---------- article / reading pages ---------- */
 .page {
-  max-width: 760px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 34px 22px 80px;
 }
