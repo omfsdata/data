@@ -26,18 +26,16 @@ Every number below comes from people who **chose to post after matching**. There
 
 The seven "Official OMS Match Results" threads (2020 through 2026) were read in full and coded into a [structured dataset](https://omfsdata.com/assets/omfs_all.csv) with variables such as program length (4-year single-degree vs 6-year dual-degree/MD), CBSE score, class-rank percentile, number of externships, research intensity, and the application funnel (programs applied to → interview invites → interviews attended → programs ranked). Purely conversational posts were skipped.
 
-Program length was coded only when a poster stated it explicitly ("4-year", "6yr", "dual-degree") or where it was unambiguous; otherwise it was left blank. Research was coded on a four-level ordinal scale (none / light / moderate / heavy) from the described publications, posters, and projects. The final dataset is **111 matched applicants**.
-
-<div class="callout" markdown="1">
-### Disclaimer: CBSE scoring changes
-The CBSE has been reported on several scales over the years: an older 2-digit scaled score, a 3-digit USMLE-aligned score, and the current **Equated Percent Correct (EPC)**. To make seven years comparable, every score was converted to **EPC** using the official NBME equivalency tables — the [old-2-digit → EPC table](https://forums.studentdoctor.net/attachments/1659585549044-png.358024/) and the [3-digit → EPC table](https://forums.studentdoctor.net/attachments/conversion-chart-equated-score-to-3-digit-png.365869/).
-</div>
+Program length was coded only when a poster stated it explicitly ("4-year", "6yr", "dual-degree") or where it was unambiguous; otherwise it was left blank. Research was coded on a four-level ordinal scale (none / light / moderate / heavy) from the described publications, posters, and projects. 
 
 <div class="stats">
   <div class="stat"><div class="num">111</div><div class="lab">matched applicants coded</div></div>
   <div class="stat"><div class="num">7</div><div class="lab">match cycles (2020–2026)</div></div>
-  <div class="stat"><div class="num">ρ = 0.50</div><div class="lab">CBSE vs interview conversion</div></div>
-  <div class="stat"><div class="num">p = 0.006</div><div class="lab">CBSE gap, 4-yr vs 6-yr</div></div>
+</div>
+
+<div class="callout" markdown="1">
+### Disclaimer: CBSE scoring changes
+The CBSE has been reported on several scales over the years: an older 2-digit scaled score, a 3-digit USMLE-aligned score, and the current **Equated Percent Correct (EPC)**. To make seven years comparable, every score was converted to **EPC** using the official NBME equivalency tables — the [old-2-digit → EPC table](https://forums.studentdoctor.net/attachments/1659585549044-png.358024/) and the [3-digit → EPC table](https://forums.studentdoctor.net/attachments/conversion-chart-equated-score-to-3-digit-png.365869/).
 </div>
 
 ## 1. Does CBSE score differ across program length? → YES!
