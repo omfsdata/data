@@ -24,13 +24,13 @@ Every number below comes from people who **chose to post after matching**. There
 
 ## How the data was collected
 
-The seven "Official OMS Match Results" threads (2020 through 2026) were read in full — every page — and each self-reported result post was coded into a structured row: program length (4-year single-degree vs 6-year dual-degree/MD), CBSE score, class-rank percentile, number of externships, research intensity, and the application funnel (programs applied to → interview invites → interviews attended → programs ranked). Purely conversational posts were skipped.
+The seven "Official OMS Match Results" threads (2020 through 2026) were read in full and coded into a [structured dataset](https://omfsdata.com/assets/omfs_all.csv) with variables such as program length (4-year single-degree vs 6-year dual-degree/MD), CBSE score, class-rank percentile, number of externships, research intensity, and the application funnel (programs applied to → interview invites → interviews attended → programs ranked). Purely conversational posts were skipped.
 
 Program length was coded only when a poster stated it explicitly ("4-year", "6yr", "dual-degree") or where it was unambiguous; otherwise it was left blank. Research was coded on a four-level ordinal scale (none / light / moderate / heavy) from the described publications, posters, and projects. The final dataset is **111 matched applicants**.
 
 <div class="callout" markdown="1">
 ### Disclaimer: CBSE scoring changes
-The CBSE has been reported on several scales over the years: an older 2-digit scaled score, a 3-digit USMLE-aligned score, and the current **Equated Percent Correct (EPC)**. To make seven years comparable, every score was converted to **EPC** using the official NBME equivalency tables — the old-2-digit → EPC table and the 3-digit → EPC table.
+The CBSE has been reported on several scales over the years: an older 2-digit scaled score, a 3-digit USMLE-aligned score, and the current **Equated Percent Correct (EPC)**. To make seven years comparable, every score was converted to **EPC** using the official NBME equivalency tables — the [old-2-digit → EPC table](https://forums.studentdoctor.net/attachments/1659585549044-png.358024/) and the [3-digit → EPC table](https://forums.studentdoctor.net/attachments/conversion-chart-equated-score-to-3-digit-png.365869/).
 </div>
 
 <div class="stats">
