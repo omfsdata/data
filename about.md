@@ -17,7 +17,7 @@ Made with ❤️ and Claude 🤖 by an OMFS spouse 😝
 This site hosts a few resources for people navigating the Oral & Maxillofacial Surgery residency application process, namely:
 1. **Program map** — a map of every accredited OMFS program, filterable by degree track, with annual openings and interview details (from 2026)
 2. **SDN match analysis** — an exploratory analysis of seven years (2020-2026) of self-reported match results scraped from Student Doctor Network forums (dataset is included)
-
+3. **Interview conversion predictor** — a simple tool that you can use to predict your interview conversion rate from your CBSE score, class rank, and other stats (please read the disclaimers!)
 
 ## Who am I?
 
