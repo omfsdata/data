@@ -6,7 +6,7 @@ permalink: /predictor/
 container: page
 ---
 
-<p class="eyebrow">Interactive Interview Predictor</p>
+<p class="eyebrow">Interactive Tool</p>
 
 ## Predict how many interviews you will get!
 
