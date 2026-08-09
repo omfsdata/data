@@ -14,7 +14,7 @@ Curious how your stats stack up? This tool takes four inputs — CBSE, class ran
 
 First, what “interview conversion” actually means: it’s the share of programs you apply to that send you an interview invite — **invites ÷ applications.** For example, if you apply to 30 programs and 15 invite you, that’s a 50% conversion rate. It is **NOT** your chance of matching, and it’s **NOT** how many interviews you’ll get in total (that depends on how many places you apply).
 
-<iframe src="{{ 'https://omfsdata.com/assets/predictor.html' | relative_url }}" width="100%" height="320"
+<iframe src="{{ 'https://omfsdata.com/assets/predictor.html' | relative_url }}" width="100%" height="350"
         frameborder="0" title="Interview-conversion estimator"></iframe>
 
 ### More details and disclaimers
