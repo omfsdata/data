@@ -67,16 +67,6 @@
 <h2 class="tool-title">The interview-conversion estimator</h2>
 
 <p class="lead">
-  Curious how your stats stack up? This tool takes four inputs — CBSE, class rank, externships, and
-  research — and returns a predicted <b>interview conversion rate</b>. Drag the sliders and watch it update.
-</p>
-
-<p>
-  First, what &ldquo;interview conversion&rdquo; actually means: it&rsquo;s the share of programs you apply to
-  that send you an <b>interview invite</b> — invites &divide; applications. If you apply to 30 programs and 15
-  invite you, that&rsquo;s 50%. It is <em>not</em> your chance of matching, and it&rsquo;s <em>not</em> how many
-  interviews you&rsquo;ll get in total (that depends on how many places you apply). It&rsquo;s a per-application
-  hit rate — and it&rsquo;s the stage where most of the sorting in this whole process happens.
 </p>
 
 <div class="controls">
@@ -115,35 +105,6 @@
 <div class="bar"><div id="bar"></div></div>
 <div class="warn" id="warn"></div>
 
-<div class="finewrap">
-  <details class="fine-toggle">
-    <summary>How to read this — please open before trusting the number</summary>
-    <div class="fine">
-      <p>This number is easy to misread, so here&rsquo;s the honest fine print:</p>
-      <ul>
-        <li><b>This predicts interviews, not matching.</b> It cannot tell you your odds of matching — the
-          underlying data contains only people who matched, so the model has never seen a non-matcher. A low
-          estimate here is not a verdict on your candidacy, and a high one is not a guarantee.</li>
-        <li><b>It&rsquo;s built entirely from success stories.</b> The model was fit to 73 applicants who
-          matched and chose to post their stats. That makes it a description of what conversion looked like
-          <em>among matchers</em>, not a law that governs everyone. Every bias in who posts on a forum is baked
-          in here too.</li>
-        <li><b>It gets shakier at the low end.</b> Because matchers cluster toward the stronger end of the pool,
-          the model has little data on low scores — so for a CBSE much below the mid-60s it&rsquo;s
-          extrapolating, and probably reading <em>optimistically</em>. Treat estimates down there as a loose
-          ceiling, not a floor.</li>
-        <li><b>The real uncertainty is wide.</b> Two applicants with identical stats can land far apart. The
-          range shown is illustrative — read the output as &ldquo;somewhere in this neighborhood,&rdquo; never a
-          precise figure.</li>
-      </ul>
-      <p style="margin-bottom:0">
-        Think of this as a way to <em>feel how the model weighs each factor</em> — nudge the CBSE slider and
-        watch it move more than the others — rather than a forecast of your cycle. It&rsquo;s a mirror of past
-        forum data, not a crystal ball.
-      </p>
-    </div>
-  </details>
-</div>
 
 <script>
 (function(){
