@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interview-conversion estimator</title>
+<style>
+  :root{
+    --bg:#f7f5f1; --ink:#1e2a2f; --accent:#2f6f8f; --dual:#c0562c;
+    --border:#d8d3c9; --muted:#6b6459; --card:#ffffff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    color:var(--ink); background:transparent; line-height:1.6;
+    padding:4px 2px 8px;
+  }
+  h2.tool-title{font-size:1.25rem; letter-spacing:-.01em; margin:0 0 .5rem}
+  p{margin:.7rem 0}
+  .lead{font-size:1rem}
+  em{font-style:italic}
+
+  .controls{display:grid; grid-template-columns:1fr; gap:1rem; max-width:540px; margin:1.25rem 0 0}
+  .row{display:flex; align-items:center; gap:12px}
+  .row label{font-size:.9rem; color:var(--muted); min-width:158px}
+  .row output, .row .val{font-size:.9rem; font-weight:600; min-width:30px; text-align:right; color:var(--ink)}
+  input[type=range]{
+    flex:1; -webkit-appearance:none; appearance:none; height:4px; border-radius:3px;
+    background:var(--border); outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--accent); cursor:pointer; border:2px solid #fff; box-shadow:0 0 0 1px var(--border);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:18px; height:18px; border-radius:50%; background:var(--accent);
+    cursor:pointer; border:2px solid #fff;
+  }
+  select{
+    flex:1; font:inherit; font-size:.92rem; color:var(--ink); background:var(--bg);
+    border:1px solid var(--border); border-radius:7px; padding:8px 10px;
+  }
+  select:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(47,111,143,.14)}
+
+  .result{margin:1.6rem 0 .4rem; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+  .result .lab{font-size:.9rem; color:var(--muted)}
+  .result .num{font-size:1.9rem; font-weight:700; letter-spacing:-.02em; color:var(--accent)}
+  .result .ci{font-size:.82rem; color:var(--muted)}
+  .bar{height:14px; background:#ece7dd; border-radius:7px; overflow:hidden; max-width:540px; margin-top:6px}
+  .bar > div{height:100%; width:0%; background:var(--accent); transition:width .12s ease}
+  .warn{margin-top:.9rem; font-size:.82rem; color:var(--dual); min-height:18px; max-width:540px}
+
+  .finewrap{margin-top:1.6rem; border-top:1px solid var(--border); padding-top:1.1rem}
+  .fine{font-size:.86rem; color:#33413f}
+  .fine ul{margin:.6rem 0; padding-left:1.1rem}
+  .fine li{margin:.5rem 0}
+  .fine b{color:var(--ink)}
+  .kicker{text-transform:uppercase; letter-spacing:.09em; font-size:.7rem; font-weight:700; color:var(--accent); margin:0 0 .3rem}
+  details.fine-toggle summary{cursor:pointer; font-size:.9rem; font-weight:600; color:var(--accent); padding:.2rem 0}
+  details.fine-toggle[open] summary{margin-bottom:.4rem}
+</style>
+</head>
+<body>
+
+<p class="kicker">Interactive tool</p>
+<h2 class="tool-title">The interview-conversion estimator</h2>
+
+<p class="lead">
+  Curious how your stats stack up? This tool takes four inputs — CBSE, class rank, externships, and
+  research — and returns a predicted <b>interview conversion rate</b>. Drag the sliders and watch it update.
+</p>
+
+<p>
+  First, what &ldquo;interview conversion&rdquo; actually means: it&rsquo;s the share of programs you apply to
+  that send you an <b>interview invite</b> — invites &divide; applications. If you apply to 30 programs and 15
+  invite you, that&rsquo;s 50%. It is <em>not</em> your chance of matching, and it&rsquo;s <em>not</em> how many
+  interviews you&rsquo;ll get in total (that depends on how many places you apply). It&rsquo;s a per-application
+  hit rate — and it&rsquo;s the stage where most of the sorting in this whole process happens.
+</p>
+
+<div class="controls">
+  <div class="row">
+    <label for="cbse">CBSE (EPC)</label>
+    <input type="range" id="cbse" min="45" max="95" value="72" step="1">
+    <span class="val" id="cbse_o">72</span>
+  </div>
+  <div class="row">
+    <label for="rank">Class rank (percentile, 1 = top)</label>
+    <input type="range" id="rank" min="1" max="100" value="10" step="1">
+    <span class="val" id="rank_o">10</span>
+  </div>
+  <div class="row">
+    <label for="ext">Externships</label>
+    <input type="range" id="ext" min="0" max="12" value="4" step="1">
+    <span class="val" id="ext_o">4</span>
+  </div>
+  <div class="row">
+    <label for="res">Research involvement</label>
+    <select id="res">
+      <option value="0">None</option>
+      <option value="1" selected>Light</option>
+      <option value="2">Moderate</option>
+      <option value="3">Heavy</option>
+    </select>
+    <span class="val"></span>
+  </div>
+</div>
+
+<div class="result">
+  <span class="lab">Predicted interview conversion</span>
+  <span class="num" id="pred">&mdash;</span>
+  <span class="ci" id="ci"></span>
+</div>
+<div class="bar"><div id="bar"></div></div>
+<div class="warn" id="warn"></div>
+
+<div class="finewrap">
+  <details class="fine-toggle">
+    <summary>How to read this — please open before trusting the number</summary>
+    <div class="fine">
+      <p>This number is easy to misread, so here&rsquo;s the honest fine print:</p>
+      <ul>
+        <li><b>This predicts interviews, not matching.</b> It cannot tell you your odds of matching — the
+          underlying data contains only people who matched, so the model has never seen a non-matcher. A low
+          estimate here is not a verdict on your candidacy, and a high one is not a guarantee.</li>
+        <li><b>It&rsquo;s built entirely from success stories.</b> The model was fit to 73 applicants who
+          matched and chose to post their stats. That makes it a description of what conversion looked like
+          <em>among matchers</em>, not a law that governs everyone. Every bias in who posts on a forum is baked
+          in here too.</li>
+        <li><b>It gets shakier at the low end.</b> Because matchers cluster toward the stronger end of the pool,
+          the model has little data on low scores — so for a CBSE much below the mid-60s it&rsquo;s
+          extrapolating, and probably reading <em>optimistically</em>. Treat estimates down there as a loose
+          ceiling, not a floor.</li>
+        <li><b>The real uncertainty is wide.</b> Two applicants with identical stats can land far apart. The
+          range shown is illustrative — read the output as &ldquo;somewhere in this neighborhood,&rdquo; never a
+          precise figure.</li>
+      </ul>
+      <p style="margin-bottom:0">
+        Think of this as a way to <em>feel how the model weighs each factor</em> — nudge the CBSE slider and
+        watch it move more than the others — rather than a forecast of your cycle. It&rsquo;s a mirror of past
+        forum data, not a crystal ball.
+      </p>
+    </div>
+  </details>
+</div>
+
+<script>
+(function(){
+  var B={c:-4.2848, cbse:0.0577, res:0.1997, ext:0.0286, rank:-0.0159};
+  var cbse=document.getElementById('cbse'), rank=document.getElementById('rank'),
+      ext=document.getElementById('ext'), res=document.getElementById('res');
+  function calc(){
+    var c=+cbse.value, rk=+rank.value, ex=+ext.value, rs=+res.value;
+    document.getElementById('cbse_o').textContent=c;
+    document.getElementById('rank_o').textContent=rk;
+    document.getElementById('ext_o').textContent=ex;
+    var lo=B.c + B.cbse*c + B.res*rs + B.ext*ex + B.rank*rk;
+    var p=1/(1+Math.exp(-lo));
+    var pct=Math.round(p*100);
+    document.getElementById('pred').textContent=pct+'%';
+    document.getElementById('bar').style.width=pct+'%';
+    var lob=Math.max(0,pct-9), hib=Math.min(100,pct+9);
+    document.getElementById('ci').textContent='roughly '+lob+'\u2013'+hib+'%';
+    var w='';
+    if(c<60) w='Below CBSE 60 the model extrapolates past most of its data \u2014 treat this as a loose upper guess.';
+    else if(c>89||ex>11) w='Near the edge of the observed data \u2014 interpret with extra caution.';
+    document.getElementById('warn').textContent=w;
+  }
+  [cbse,rank,ext,res].forEach(function(e){e.addEventListener('input',calc);});
+  calc();
+})();
+</script>
+</body>
+</html>
