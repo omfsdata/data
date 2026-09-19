@@ -205,6 +205,14 @@ let activeFilters = new Set(["Single","Dual","Both","Federal"]);
 let searchTerm = "";
 let currentZoomK = 1;
 
+// Largest distance (in map px at zoom 1) a marker may be nudged off its true position.
+const MAX_NUDGE = 22;
+// Dot radii stay visually constant as you zoom, so the collision offset is divided by the
+// zoom factor: the nudge looks the same on screen at every zoom, while the geographic error
+// it introduces shrinks as you zoom in and the true positions separate on their own.
+function dotX(d) { return d.trueX + d.ox / currentZoomK; }
+function dotY(d) { return d.trueY + d.oy / currentZoomK; }
+
 const zoomBehavior = d3.zoom()
   .scaleExtent([1, 20])
   .translateExtent([[0, 0], [width, height]])
@@ -213,7 +221,10 @@ const zoomBehavior = d3.zoom()
     zoomLayer.attr("transform", event.transform);
     // Keep dot size visually constant on screen as you zoom, so positions spread apart
     // (making overlapping programs distinguishable) without the circles ballooning in size.
-    dotsLayer.selectAll("circle.dot").attr("r", d => d.baseR / currentZoomK);
+    dotsLayer.selectAll("circle.dot")
+      .attr("r", d => d.baseR / currentZoomK)
+      .attr("cx", dotX)
+      .attr("cy", dotY);
   });
 
 svg.call(zoomBehavior);
@@ -317,7 +328,7 @@ function renderDots() {
   const mainland = programs.filter(p => !p.pr);
   const projected = mainland.map(p => {
     const xy = projection([p.lon, p.lat]);
-    return xy ? {...p, x: xy[0], y: xy[1]} : null;
+    return xy ? {...p, x: xy[0], y: xy[1], trueX: xy[0], trueY: xy[1], ox: 0, oy: 0} : null;
   }).filter(Boolean);
 
   const openingsExtent = d3.extent(programs, d => d.openings);
@@ -328,16 +339,40 @@ function renderDots() {
 
   projected.forEach(d => { d.baseR = radiusScale(d.openings); });
 
+  // Programs in the same city (Boston, NYC, Shreveport) project to nearly the same pixel at
+  // zoom 1, so the smaller circle disappears under the larger one. Run a collision pass to
+  // nudge co-located markers apart, keeping each as close to its true position as possible.
+  d3.forceSimulation(projected)
+    .force("x", d3.forceX(d => d.trueX).strength(0.55))
+    .force("y", d3.forceY(d => d.trueY).strength(0.55))
+    .force("collide", d3.forceCollide(d => d.baseR + 1).strength(0.9))
+    .stop()
+    .tick(200);
+
+  // Cap the nudge so no marker can drift out of its own state, then freeze it as an offset.
+  projected.forEach(d => {
+    let ox = d.x - d.trueX, oy = d.y - d.trueY;
+    const dist = Math.hypot(ox, oy);
+    if (dist > MAX_NUDGE) { ox *= MAX_NUDGE / dist; oy *= MAX_NUDGE / dist; }
+    d.ox = ox; d.oy = oy;
+  });
+
   const tooltip = d3.select("#tooltip");
   const mapbox = document.getElementById("mapbox");
 
+  // Dense clusters (NYC, Boston, Philadelphia) can't be fully separated at zoom 1 without
+  // throwing markers into the next state, so paint the largest circles first: a small
+  // program is then always drawn on top of the big one it shares a city with, and stays
+  // visible and hoverable even where the nudge leaves them overlapping.
+  const drawOrder = projected.slice().sort((a, b) => b.baseR - a.baseR);
+
   const dots = dotsLayer.selectAll("circle.dot")
-    .data(projected, d => d.name + d.city);
+    .data(drawOrder, d => d.name + d.city);
 
   dots.join("circle")
     .attr("class", "dot")
-    .attr("cx", d => d.x)
-    .attr("cy", d => d.y)
+    .attr("cx", dotX)
+    .attr("cy", dotY)
     .attr("r", d => d.baseR / currentZoomK)
     .attr("fill", colorFor)
     .attr("fill-opacity", 0.85)

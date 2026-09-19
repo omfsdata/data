@@ -163,6 +163,28 @@ figcaption b { color: var(--ink); }
 }
 code { background: #ece7dd; padding: 1px 5px; border-radius: 4px; font-size: 0.86em; }
 
+/* Below ~820px the six nav links stop fitting on one line. The bar is a fixed 54px tall,
+   so wrapping pushed the first row (often the active link) above the bar where it was
+   clipped, and spilled the last row down over the page heading. Keep the links on one
+   line and let that strip scroll sideways instead, so the bar keeps its height. */
+@media (max-width: 820px) {
+  .site-nav { gap: 12px; padding: 0 14px; }
+  .site-nav .nav-links {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .site-nav .nav-links::-webkit-scrollbar { display: none; }
+  .site-nav .nav-links a { white-space: nowrap; padding: 6px 10px; }
+  /* Fade the trailing edge while there is more to scroll to, as a hint that there is. */
+  .site-nav .nav-links.scrollable:not(.scroll-end) {
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent);
+  }
+}
+
 @media (max-width: 560px) {
   h1.title { font-size: 1.55rem; }
   .site-nav { gap: 8px; }

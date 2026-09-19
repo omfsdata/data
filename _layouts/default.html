@@ -25,5 +25,26 @@
   </main>
 
   <div class="footer">{{ site.footer_text }}</div>
+
+  <script>
+    // The nav links scroll sideways on narrow screens (see site.css). Bring the current
+    // page's link into view, and only fade the trailing edge while there is more to see.
+    (function () {
+      var links = document.querySelector(".site-nav .nav-links");
+      if (!links) return;
+      function sync() {
+        var more = links.scrollWidth > links.clientWidth + 1;
+        links.classList.toggle("scrollable", more);
+        links.classList.toggle("scroll-end",
+          links.scrollLeft + links.clientWidth >= links.scrollWidth - 1);
+      }
+      var active = links.querySelector("a.active");
+      // block:"nearest" so this never scrolls the page itself, only the strip.
+      if (active) active.scrollIntoView({ inline: "center", block: "nearest" });
+      sync();
+      links.addEventListener("scroll", sync, { passive: true });
+      window.addEventListener("resize", sync);
+    })();
+  </script>
 </body>
 </html>
