@@ -530,12 +530,43 @@ function trackBadge(r) {
   return '<span class="track-badge track-4">4-yr</span>';
 }
 
+// The date columns hold free text \u2014 "10/30, 11/2", "9/18, 10/16", "Email \u2014 9/17",
+// "Email \u2014 August" \u2014 so comparing them as strings puts 10/2 after 10/19 and September
+// after December. Sort on the earliest real date in the cell instead.
+const MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7,
+                 aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
+
+// The cycle runs from the first invitations in spring through interviews the following
+// winter, so a month before May belongs to the next calendar year and sorts after December.
+function cycleRank(month, day) {
+  return (month >= 5 ? month : month + 12) + day / 100;
+}
+
+function earliestDate(text) {
+  if (!text) return Infinity;
+  // Drop parenthetical asides, so USC's "11/5 (med school 9/29\u201330)" ranks on 11/5.
+  const cleaned = text.replace(/\([^)]*\)/g, " ");
+  let best = Infinity, m;
+  const numeric = /(\d{1,2})\/(\d{1,2})/g;
+  while ((m = numeric.exec(cleaned)) !== null) {
+    const month = +m[1], day = +m[2];
+    if (month >= 1 && month <= 12 && day >= 1 && day <= 31)
+      best = Math.min(best, cycleRank(month, day));
+  }
+  if (best !== Infinity) return best;
+  // Fall back to month names, for invites reported only as "August" or "May & July".
+  const named = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/gi;
+  while ((m = named.exec(cleaned)) !== null)
+    best = Math.min(best, cycleRank(MONTHS[m[1].toLowerCase()], 0));
+  return best;
+}
+
 function compare(a, b, key) {
   let av, bv;
   if (key === "tracks") { av = a.tracksRank; bv = b.tracksRank; }
   else if (key === "openings") { av = a.openings; bv = b.openings; }
-  else if (key === "interview") { av = a.interview || "~"; bv = b.interview || "~"; }
-  else if (key === "invite") { av = a.invite || "~"; bv = b.invite || "~"; }
+  else if (key === "interview") { av = earliestDate(a.interview); bv = earliestDate(b.interview); }
+  else if (key === "invite") { av = earliestDate(a.invite); bv = earliestDate(b.invite); }
   else { av = (a[key] || "").toString().toLowerCase(); bv = (b[key] || "").toString().toLowerCase(); }
   if (av < bv) return -1;
   if (av > bv) return 1;
@@ -549,7 +580,16 @@ function currentRows() {
     return [r.name, r.cityName, r.state, r.director, r.note]
       .some(v => (v || "").toString().toLowerCase().includes(term));
   });
-  rows.sort((a, b) => tableSort.dir * compare(a, b, tableSort.key));
+  rows.sort((a, b) => {
+    // Most programs have no reported date yet, so keep undated rows at the bottom in both
+    // directions \u2014 otherwise "newest first" opens on a screenful of dashes.
+    if (tableSort.key === "interview" || tableSort.key === "invite") {
+      const aBlank = earliestDate(a[tableSort.key]) === Infinity;
+      const bBlank = earliestDate(b[tableSort.key]) === Infinity;
+      if (aBlank !== bBlank) return aBlank ? 1 : -1;
+    }
+    return tableSort.dir * compare(a, b, tableSort.key);
+  });
   return rows;
 }
 
